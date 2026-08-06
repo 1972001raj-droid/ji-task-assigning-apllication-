@@ -1,14 +1,22 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { extractErrorMessage } from '../api/client';
 import { LogIn, Lock, User, AlertCircle, Sparkles } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
-  const { login } = useAuth();
+  const navigate = useNavigate();
+  const { login, user } = useAuth();
   const [usernameOrEmail, setUsernameOrEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      navigate(user.dashboard_route || '/');
+    }
+  }, [user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,10 +25,11 @@ export const LoginPage: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      await login({
+      const loggedInUser = await login({
         username_or_email: usernameOrEmail,
         password,
       });
+      navigate(loggedInUser.dashboard_route || '/');
     } catch (err: unknown) {
       setError(extractErrorMessage(err));
     } finally {
