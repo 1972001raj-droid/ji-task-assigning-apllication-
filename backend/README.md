@@ -1,0 +1,102 @@
+# Project Management Application - FastAPI Backend
+
+A production-structured, modular backend for a multi-tenant project management system built with Python 3.12+, FastAPI, PostgreSQL, SQLAlchemy 2.x async ORM, Alembic migrations, and Argon2id security.
+
+## Technology Stack
+
+- **Framework**: FastAPI
+- **Database**: PostgreSQL
+- **ORM**: SQLAlchemy 2.x Async ORM (`asyncpg` driver)
+- **Migrations**: Alembic
+- **Validation**: Pydantic v2 & `pydantic-settings`
+- **Security**: Argon2id password hashing, server-side sessions, HttpOnly/Secure/SameSite cookies, CSRF protection
+- **Testing**: `pytest`, `pytest-asyncio`, `httpx`
+
+## Project Structure
+
+```text
+backend/
+  app/
+    main.py              # Application factory & middlewares
+    core/                # Settings, security, permissions, exceptions
+    db/                  # Session, Base, SQLAlchemy ORM models
+    schemas/             # Pydantic request/response schemas
+    repositories/        # Async database repositories
+    services/            # Business domain services & Workflow engine
+    api/                 # Dependencies & API v1 routers
+    workers/             # Transactional outbox event processor
+    tests/               # Automated test suite
+  alembic/               # Database migration scripts
+  docs/                  # Architecture & assumptions documentation
+  .env.example           # Example environment variables
+  pyproject.toml         # Python dependencies configuration
+```
+
+## Local Development Setup
+
+### 1. Prerequisites
+
+Ensure Python 3.12+ and PostgreSQL are installed and running locally.
+
+### 2. Database Creation
+
+Create the local PostgreSQL database:
+
+```bash
+psql -U postgres -c "CREATE DATABASE pm_db;"
+psql -U postgres -c "CREATE DATABASE pm_test_db;"
+```
+
+### 3. Environment Setup
+
+Create `.env` from `.env.example`:
+
+```bash
+cp .env.example .env
+```
+
+Ensure `DATABASE_URL` in `.env` matches your local PostgreSQL connection credentials (e.g., `postgresql+asyncpg://postgres:postgres@localhost:5432/pm_db`).
+
+### 4. Install Dependencies
+
+Activate your virtual environment and install packages:
+
+```bash
+py -m venv .venv
+.\.venv\Scripts\activate
+pip install -e .
+```
+
+### 5. Run Database Migrations
+
+Apply all Alembic database migrations:
+
+```bash
+alembic upgrade head
+```
+
+### 6. Start Development Server
+
+Launch the FastAPI development server:
+
+```bash
+uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+```
+
+- API Base URL: `http://localhost:8000`
+- Interactive OpenAPI Docs: `http://localhost:8000/docs`
+- Health Check: `http://localhost:8000/health`
+- Readiness Check: `http://localhost:8000/readiness`
+
+## Running Automated Tests
+
+Run the full async test suite using `pytest`:
+
+```bash
+pytest -v
+```
+
+## Documentation
+
+- [`docs/architecture.md`](file:///docs/architecture.md): System architecture, data model, security, and workflow engine flow.
+- [`docs/assumptions.md`](file:///docs/assumptions.md): Documented technical choices where requirements were open.

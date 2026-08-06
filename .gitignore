@@ -1,0 +1,53 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.pdb
+*.pyd
+*.pyo
+*.coverage
+.coverage.*
+.pytest_cache/
+celerybeat-schedule
+env/
+venv/
+.venv/
+
+# Environments
+.env
+.env.*
+
+# PyCharm
+.idea/
+
+# VS Code
+.vscode/
+
+# macOS
+.DS_Store
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Vite
+dist/
+
+# Logs
+logs/
+*.log
+
+# Database
+*.sqlite3
+
+# OS files
+Thumbs.db
+
+# Misc
+*.swp
+*.swo
