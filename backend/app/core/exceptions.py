@@ -40,12 +40,12 @@ class VersionConflictException(AppException):
 
 class InvalidTransitionException(AppException):
     def __init__(self, message: str, details: Optional[Dict[str, Any]] = None):
-        super().__init__(message=message, status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, details=details)
+        super().__init__(message=message, status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, details=details)
 
 
 class ValidationException(AppException):
     def __init__(self, message: str, details: Optional[Any] = None):
-        super().__init__(message=message, status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, details=details)
+        super().__init__(message=message, status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, details=details)
 
 
 class RateLimitException(AppException):

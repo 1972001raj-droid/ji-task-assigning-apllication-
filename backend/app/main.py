@@ -20,6 +20,7 @@ from app.api.v1 import (
     reports,
     notifications,
     audit_logs,
+    admin,
 )
 
 
@@ -106,6 +107,7 @@ def create_app() -> FastAPI:
     app.include_router(reports.router, prefix=api_v1_prefix)
     app.include_router(notifications.router, prefix=api_v1_prefix)
     app.include_router(audit_logs.router, prefix=api_v1_prefix)
+    app.include_router(admin.router, prefix=api_v1_prefix)
 
     return app
 

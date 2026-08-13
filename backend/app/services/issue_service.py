@@ -29,28 +29,34 @@ class IssueService:
 
     async def validate_hierarchy(self, issue_type: IssueType, parent_issue_id: Optional[uuid.UUID], project_id: uuid.UUID) -> Optional[Issue]:
         if parent_issue_id is None:
-            if issue_type in (IssueType.STORY, IssueType.TASK, IssueType.BUG, IssueType.SUBTASK):
-                pass # Allow unlinked stories/tasks if desired, or validate required parents
+            if issue_type == IssueType.STORY:
+                raise ValidationException("A User Story must be linked to an Epic as its parent.")
+            if issue_type == IssueType.TASK:
+                raise ValidationException("A Task must be linked to a User Story as its parent.")
+            if issue_type == IssueType.BUG:
+                raise ValidationException("A Bug must be linked to a User Story as its parent.")
+            if issue_type == IssueType.SUBTASK:
+                raise ValidationException("A Subtask must be linked to a Task as its parent.")
             return None
 
         parent = await self.issue_repo.get(parent_issue_id)
         if not parent or parent.project_id != project_id:
             raise ValidationException("Parent issue not found in the same project.")
 
-        if issue_type == IssueType.EPIC and parent_issue_id is not None:
+        if issue_type == IssueType.EPIC:
             raise ValidationException("An Epic cannot have a parent issue.")
 
         if issue_type == IssueType.STORY and parent.issue_type != IssueType.EPIC:
-            raise ValidationException("A Story must be linked to an Epic as its parent.")
+            raise ValidationException("A User Story must be linked to an Epic as its parent.")
 
         if issue_type == IssueType.TASK and parent.issue_type != IssueType.STORY:
-            raise ValidationException("A Task must be linked to a Story as its parent.")
+            raise ValidationException("A Task must be linked to a User Story as its parent.")
 
         if issue_type == IssueType.BUG and parent.issue_type != IssueType.STORY:
-            raise ValidationException("A Bug must be linked to a Story as its parent.")
+            raise ValidationException("A Bug must be linked to a User Story as its parent.")
 
-        if issue_type == IssueType.SUBTASK and parent.issue_type not in (IssueType.STORY, IssueType.TASK):
-            raise ValidationException("A Subtask must be linked to a Story or a Task as its parent.")
+        if issue_type == IssueType.SUBTASK and parent.issue_type != IssueType.TASK:
+            raise ValidationException("A Subtask must be linked to a Task as its parent.")
 
         return parent
 
@@ -66,7 +72,12 @@ class IssueService:
 
     async def create_issue(self, data: IssueCreate, reporter_id: uuid.UUID) -> Issue:
         parent = await self.validate_hierarchy(data.issue_type, data.parent_issue_id, data.project_id)
-        await self.validate_estimate(data.project_id, data.estimate)
+        
+        # Epics and Subtasks do not have estimates / story points
+        if data.issue_type in (IssueType.EPIC, IssueType.SUBTASK):
+            data.estimate = None
+        else:
+            await self.validate_estimate(data.project_id, data.estimate)
 
         issue = Issue(
             project_id=data.project_id,

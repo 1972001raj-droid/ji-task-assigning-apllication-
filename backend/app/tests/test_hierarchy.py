@@ -92,11 +92,15 @@ async def test_estimation_scheme_validation(client: AsyncClient, seed_data):
     headers = {settings.CSRF_HEADER_NAME: csrf}
     proj_id = str(seed_data["project_a"].id)
 
+    # Create Epic first
+    epic = (await client.post("/api/v1/issues", json={"project_id": proj_id, "issue_type": "EPIC", "title": "Est Epic"}, headers=headers)).json()
+
     # Valid Fibonacci estimate (5)
     valid_est = await client.post("/api/v1/issues", json={
         "project_id": proj_id,
         "issue_type": "STORY",
         "title": "Fib Story",
+        "parent_issue_id": epic["id"],
         "estimate": "5"
     }, headers=headers)
     assert valid_est.status_code == 201
@@ -106,6 +110,8 @@ async def test_estimation_scheme_validation(client: AsyncClient, seed_data):
         "project_id": proj_id,
         "issue_type": "STORY",
         "title": "Invalid Est Story",
+        "parent_issue_id": epic["id"],
         "estimate": "99"
     }, headers=headers)
     assert invalid_est.status_code == 422
+

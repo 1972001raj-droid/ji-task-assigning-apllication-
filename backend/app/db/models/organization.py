@@ -27,7 +27,7 @@ class OrganizationMembership(Base, UUIDMixin, TimestampMixin):
 
     org_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False, index=True)
     user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
-    role: Mapped[SystemRole] = mapped_column(Enum(SystemRole), default=SystemRole.DEVELOPER_TESTER, nullable=False)
+    role: Mapped[SystemRole] = mapped_column(Enum(SystemRole, native_enum=False), default=SystemRole.DEVELOPER_TESTER, nullable=False)
 
     organization: Mapped["Organization"] = relationship("Organization", back_populates="memberships")
     user: Mapped["User"] = relationship("User", back_populates="org_memberships")
