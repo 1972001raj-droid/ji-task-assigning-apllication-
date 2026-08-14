@@ -13,6 +13,9 @@ from app.core.exceptions import (
 from app.db.session import get_async_session
 from app.db.models.user import User
 from app.db.models.session import AuthSession
+from sqlalchemy import select
+from app.db.models.project import ProjectMembership
+from app.db.models.organization import OrganizationMembership
 from app.repositories.project_repository import ProjectRepository
 from app.repositories.organization_repository import OrganizationRepository
 from app.services.auth_service import AuthService
@@ -60,14 +63,46 @@ class ProjectPermissionGuard:
         user: User = Depends(get_current_user),
         session: AsyncSession = Depends(get_async_session)
     ) -> tuple[User, SystemRole]:
+        from sqlalchemy import text as sql_text
+
+        # Superusers always pass
+        if user.is_superuser:
+            return user, SystemRole.ADMIN
+
+        # Check org-level and project-level role via ORM column select (SQLite + PostgreSQL compatible)
+        pm_res = await session.execute(
+            select(ProjectMembership.role).where(
+                ProjectMembership.user_id == user.id,
+                ProjectMembership.project_id == project_id
+            )
+        )
+        om_res = await session.execute(
+            select(OrganizationMembership.role).where(
+                OrganizationMembership.user_id == user.id
+            )
+        )
+        proj_roles = {str(getattr(r[0], 'value', r[0])).upper() for r in pm_res.fetchall()}
+        org_roles = {str(getattr(r[0], 'value', r[0])).upper() for r in om_res.fetchall()}
+        all_roles = proj_roles | org_roles
+
+        # Managers and Admins have access to all projects
+        if "MANAGER" in all_roles or "ADMIN" in all_roles:
+            effective_role = SystemRole.ADMIN if "ADMIN" in all_roles else SystemRole.MANAGER
+            if self.required_permission:
+                if not has_permission(effective_role, self.required_permission):
+                    raise PermissionDeniedException(
+                        f"Role '{effective_role.value}' lacks required permission '{self.required_permission.value}'"
+                    )
+            return user, effective_role
+
+        # Fallback: check project-level membership
         project_repo = ProjectRepository(session)
         membership = await project_repo.get_membership(project_id, user.id)
 
-        if not membership and not user.is_superuser:
-            # Cross-project access denial
+        if not membership:
             raise NotFoundException("Project", project_id)
 
-        role = SystemRole.ADMIN if user.is_superuser else membership.role
+        role = membership.role
 
         if self.required_permission:
             if not has_permission(role, self.required_permission):
@@ -76,3 +111,4 @@ class ProjectPermissionGuard:
                 )
 
         return user, role
+

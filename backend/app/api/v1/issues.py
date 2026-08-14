@@ -23,6 +23,10 @@ from app.services.issue_service import IssueService
 from app.services.workflow_service import WorkflowService
 from app.api.dependencies import get_current_user, ProjectPermissionGuard
 
+from sqlalchemy import select
+from app.db.models.project import ProjectMembership
+from app.db.models.organization import OrganizationMembership
+
 router = APIRouter(prefix="", tags=["Issues"])
 
 
@@ -32,15 +36,29 @@ async def create_issue(
     user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_async_session)
 ):
+    from sqlalchemy import text as sql_text
+
     guard = ProjectPermissionGuard()
     await guard(project_id=data.project_id, user=user, session=session)
 
+    pm_res = await session.execute(select(ProjectMembership.role).where(ProjectMembership.user_id == user.id))
+    om_res = await session.execute(select(OrganizationMembership.role).where(OrganizationMembership.user_id == user.id))
+    all_roles = {str(getattr(r[0], 'value', r[0])).upper() for r in pm_res.fetchall()} | {str(getattr(r[0], 'value', r[0])).upper() for r in om_res.fetchall()}
+
+    is_manager_or_admin = user.is_superuser or "ADMIN" in all_roles or "MANAGER" in all_roles
+
+    if not is_manager_or_admin:
+        if data.issue_type not in (IssueType.SUBTASK, IssueType.BUG):
+            raise PermissionDeniedException("Only Managers and Admins can create top-level Issues, Epics, User Stories, or Tasks.")
+
     issue_service = IssueService(session)
     issue = await issue_service.create_issue(data, reporter_id=user.id)
-    
+
     resp = IssueResponse.model_validate(issue)
     resp.effective_epic_id = await issue_service.get_effective_epic_id(issue)
     return resp
+
+
 
 
 @router.get("/issues/{issue_id}", response_model=IssueDetailResponse)
@@ -181,3 +199,21 @@ async def update_acceptance_criteria(
 ):
     issue_service = IssueService(session)
     return await issue_service.update_acceptance_criteria(ac_id=ac_id, data=data, user_id=user.id)
+
+
+@router.delete("/issues/{issue_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_issue(
+    issue_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_async_session)
+):
+    issue_service = IssueService(session)
+    issue = await issue_service.issue_repo.get(issue_id)
+    if not issue:
+        raise NotFoundException("Issue", issue_id)
+
+    guard = ProjectPermissionGuard(Permission.ISSUE_DELETE)
+    await guard(project_id=issue.project_id, user=user, session=session)
+
+    await session.delete(issue)
+    await session.commit()

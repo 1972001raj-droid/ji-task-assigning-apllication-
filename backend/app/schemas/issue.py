@@ -1,14 +1,24 @@
 import uuid
 from datetime import datetime
 from typing import Optional, List
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
+from typing import Optional as _Optional
 from app.db.models.issue import IssueType, IssueStatus, IssuePriority
 from app.schemas.auth import UserResponse
 
 
 class AcceptanceCriteriaCreate(BaseModel):
-    description: str = Field(..., min_length=1, max_length=500)
+    description: _Optional[str] = Field(None, min_length=1, max_length=500)
+    text: _Optional[str] = Field(None, min_length=1, max_length=500)
     position: int = 0
+
+    @model_validator(mode="after")
+    def resolve_description(self) -> "AcceptanceCriteriaCreate":
+        if not self.description and self.text:
+            self.description = self.text
+        if not self.description:
+            raise ValueError("Either 'description' or 'text' must be provided")
+        return self
 
 
 class AcceptanceCriteriaUpdate(BaseModel):

@@ -23,9 +23,11 @@ async def test_sprints_and_boards(client: AsyncClient, seed_data):
     assert sprint_resp.status_code == 201
     sprint_id = sprint_resp.json()["id"]
 
-    # 2. Create Story & Task
-    story = (await client.post("/api/v1/issues", json={"project_id": proj_id, "issue_type": "STORY", "title": "Sprint Story"}, headers=headers)).json()
+    # 2. Create Epic, Story & Task
+    epic = (await client.post("/api/v1/issues", json={"project_id": proj_id, "issue_type": "EPIC", "title": "Sprint Epic"}, headers=headers)).json()
+    story = (await client.post("/api/v1/issues", json={"project_id": proj_id, "issue_type": "STORY", "title": "Sprint Story", "parent_issue_id": epic["id"]}, headers=headers)).json()
     task = (await client.post("/api/v1/issues", json={"project_id": proj_id, "issue_type": "TASK", "title": "Sprint Task", "parent_issue_id": story["id"]}, headers=headers)).json()
+
 
     # 3. Add Task to Sprint (FR-18: automatically includes parent Story)
     add_resp = await client.post(f"/api/v1/sprints/{sprint_id}/issues", json={"issue_id": task["id"]}, headers=headers)

@@ -28,7 +28,14 @@ class ProjectRepository(BaseRepository[Project]):
         res = await self.session.execute(stmt)
         return list(res.scalars().all())
 
+    async def list_all_projects(self) -> List[Project]:
+        """Return all projects — used for Admin and Manager roles who manage all projects."""
+        stmt = select(Project).order_by(Project.created_at.asc())
+        res = await self.session.execute(stmt)
+        return list(res.scalars().all())
+
     async def get_estimation_settings(self, project_id: uuid.UUID) -> Optional[ProjectEstimationSettings]:
         stmt = select(ProjectEstimationSettings).where(ProjectEstimationSettings.project_id == project_id)
         res = await self.session.execute(stmt)
         return res.scalars().first()
+

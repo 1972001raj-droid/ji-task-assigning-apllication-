@@ -10,6 +10,10 @@ from app.schemas.auth import LoginRequest, LoginResponse, UserResponse, SessionR
 from app.services.auth_service import AuthService
 from app.api.dependencies import get_current_user_and_session, get_current_user
 
+from sqlalchemy import select
+from app.db.models.project import ProjectMembership
+from app.db.models.organization import OrganizationMembership
+
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
@@ -42,12 +46,18 @@ async def login(
     )
 
     user_resp = UserResponse.model_validate(user)
-    roles = [m.role for m in user.project_memberships] if user.project_memberships else []
+    
+    # Query project and organization memberships explicitly to avoid async lazy load errors
+    pm_res = await session.execute(select(ProjectMembership.role).where(ProjectMembership.user_id == user.id))
+    om_res = await session.execute(select(OrganizationMembership.role).where(OrganizationMembership.user_id == user.id))
+    roles = list({str(getattr(r[0], 'value', r[0])).upper() for r in pm_res.fetchall()} | {str(getattr(r[0], 'value', r[0])).upper() for r in om_res.fetchall()})
+    if user.is_superuser and "ADMIN" not in roles:
+        roles.append("ADMIN")
     user_resp.roles = roles
     
-    if user.is_superuser:
+    if user.is_superuser or "ADMIN" in roles:
         user_resp.dashboard_route = "/dashboard/admin"
-    elif any(r == "MANAGER" for r in roles):
+    elif "MANAGER" in roles:
         user_resp.dashboard_route = "/dashboard/manager"
     else:
         user_resp.dashboard_route = "/dashboard/developer"
@@ -57,6 +67,7 @@ async def login(
         csrf_token=csrf_token,
         message="Login successful"
     )
+
 
 
 @router.post("/logout")

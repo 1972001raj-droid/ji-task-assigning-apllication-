@@ -7,7 +7,7 @@ from app.db.models.project import EstimationScheme
 
 
 class ProjectCreate(BaseModel):
-    org_id: uuid.UUID
+    org_id: Optional[uuid.UUID] = None  # Auto-resolved if not provided
     name: str = Field(..., min_length=2, max_length=100)
     key: str = Field(..., min_length=2, max_length=10)
     description: Optional[str] = None
