@@ -4,7 +4,7 @@ import { useStore } from '../../store';
 import { IssueTypeIcon } from '../common/IssueTypeIcon';
 import { PriorityBadge } from '../common/PriorityBadge';
 import { UserAvatar } from '../common/UserAvatar';
-import { cn } from '../../lib/utils';
+import { cn, isUuidOrHash, getShortDisplayName } from '../../lib/utils';
 
 interface Props {
   issue: Issue;
@@ -16,7 +16,10 @@ export function IssueCard({ issue, onClick, isDragging }: Props) {
   const { users, epics, issues } = useStore();
 
   const assignee = users.find((u) => u.id === issue.assigneeId);
-  const parentEpic = epics.find((e) => e.id === issue.epicId || e.id === issue.parentId) || issues.find(i => i.id === issue.epicId && i.type === 'epic');
+  const parentEpic = (issue.type === 'epic')
+    ? null
+    : epics.find((e) => e.id === issue.epicId || e.id === issue.parentId) ||
+      issues.find(i => i.id === issue.epicId && i.type === 'epic');
   const parentStory = (issue.type === 'task' || issue.type === 'bug' || issue.type === 'subtask') ? issues.find(i => i.id === issue.parentId && i.type === 'story') : null;
 
   return (
@@ -28,18 +31,18 @@ export function IssueCard({ issue, onClick, isDragging }: Props) {
       )}
     >
       {/* Contextual Hierarchy Pill */}
-      {(parentEpic || parentStory) && (
+      {((parentEpic && getShortDisplayName(parentEpic)) || (parentStory && getShortDisplayName(parentStory))) && (
         <div className="flex items-center gap-1.5 overflow-hidden">
-          {parentEpic && (
+          {parentEpic && getShortDisplayName(parentEpic) && (
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-500/10 border border-purple-500/20 text-purple-400 truncate max-w-[160px]">
               <Layers className="w-2.5 h-2.5 shrink-0" />
-              <span className="truncate">{parentEpic.title}</span>
+              <span className="truncate">{getShortDisplayName(parentEpic)}</span>
             </span>
           )}
-          {parentStory && (
+          {parentStory && getShortDisplayName(parentStory) && (
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 truncate max-w-[160px]">
               <BookOpen className="w-2.5 h-2.5 shrink-0" />
-              <span className="truncate">{parentStory.title}</span>
+              <span className="truncate">{getShortDisplayName(parentStory)}</span>
             </span>
           )}
         </div>
@@ -54,7 +57,9 @@ export function IssueCard({ issue, onClick, isDragging }: Props) {
       <div className="flex items-center justify-between pt-1 text-xs border-t border-slate-100 dark:border-slate-800/60">
         <div className="flex items-center gap-2">
           <IssueTypeIcon type={issue.type} size="sm" />
-          <span className="font-mono text-[10px] font-bold text-slate-400">{issue.key}</span>
+          {!isUuidOrHash(issue.key) && (
+            <span className="font-mono text-[10px] font-bold text-slate-400">{issue.key}</span>
+          )}
           <PriorityBadge priority={issue.priority} size="sm" />
         </div>
 

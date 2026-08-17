@@ -10,7 +10,7 @@ import { PriorityBadge } from '../components/common/PriorityBadge';
 import { UserAvatar } from '../components/common/UserAvatar';
 import { IssueDrawer } from '../components/drawer/IssueDrawer';
 import { CreateIssueDialog } from '../components/common/CreateIssueDialog';
-import { cn } from '../lib/utils';
+import { cn, isUuidOrHash, getShortDisplayName } from '../lib/utils';
 
 export function Backlog() {
   const { issues, sprints, users, currentProject, moveIssue, deleteIssue } = useStore();
@@ -288,7 +288,9 @@ function IssueRow({ issueId, users, isSelected, onSelect, onClick, onStatusChang
   const assignee = users.find((u) => u.id === issue.assigneeId);
 
   // AUTOMATIC HIERARCHY DETECTION FOR ROW DISPLAY
-  const parentEpic = epics.find(e => e.id === issue.epicId || e.id === issue.parentId) ||
+  const parentEpic = (issue.type === 'epic')
+    ? null
+    : epics.find(e => e.id === issue.epicId || e.id === issue.parentId) ||
     issues.find(i => i.id === issue.epicId && i.type === 'epic');
 
   const parentStory = (issue.type === 'task' || issue.type === 'bug' || issue.type === 'subtask')
@@ -331,20 +333,26 @@ function IssueRow({ issueId, users, isSelected, onSelect, onClick, onStatusChang
           type="checkbox"
           checked={isSelected}
           onClick={onSelect}
-          onChange={() => {}}
+          onChange={() => { }}
           className="rounded border-slate-300 dark:border-slate-700 text-indigo-600 focus:ring-indigo-500"
         />
 
         <IssueTypeIcon type={issue.type} size="sm" />
 
-        <span className="font-mono text-slate-400 font-semibold w-16 shrink-0">{issue.key}</span>
+        {!isUuidOrHash(issue.key) && (
+          <span className="font-mono text-slate-400 font-semibold w-16 shrink-0">{issue.key}</span>
+        )}
 
         {/* Automatic Hierarchy Path Chip */}
-        {(parentEpic || parentStory) && (
+        {((parentEpic && getShortDisplayName(parentEpic)) || (parentStory && getShortDisplayName(parentStory))) && (
           <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-[10px] font-medium text-slate-400 shrink-0">
-            {parentEpic && <span className="text-purple-400">{parentEpic.key || parentEpic.title}</span>}
-            {parentEpic && parentStory && <span>⇒</span>}
-            {parentStory && <span className="text-emerald-400">{parentStory.key || parentStory.title}</span>}
+            {parentEpic && getShortDisplayName(parentEpic) && (
+              <span className="text-purple-400">{getShortDisplayName(parentEpic)}</span>
+            )}
+            {parentEpic && getShortDisplayName(parentEpic) && parentStory && getShortDisplayName(parentStory) && <span>⇒</span>}
+            {parentStory && getShortDisplayName(parentStory) && (
+              <span className="text-emerald-400">{getShortDisplayName(parentStory)}</span>
+            )}
           </span>
         )}
 

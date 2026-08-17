@@ -15,8 +15,8 @@ export function AppShell() {
       {/* Main area */}
       <div
         className={cn(
-          'flex flex-col flex-1 min-w-0 transition-all duration-300',
-          sidebarCollapsed ? 'ml-[72px]' : 'ml-[280px]'
+          'flex flex-col flex-1 min-w-0 transition-all duration-300 ml-0',
+          sidebarCollapsed ? 'md:ml-[72px]' : 'md:ml-[280px]'
         )}
       >
         <TopHeader />

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Zap, Calendar, Plus } from 'lucide-react';
 import { useStore } from '../store';
 import { toast } from 'sonner';
+import { formatDate } from '../lib/utils';
 
 export function SprintsPage() {
   const { sprints, issues, createSprint } = useStore();
@@ -53,7 +54,7 @@ export function SprintsPage() {
 
               <div className="text-xs text-slate-400 flex items-center gap-1.5">
                 <Calendar className="w-3.5 h-3.5" />
-                {sprint.startDate} → {sprint.endDate}
+                {formatDate(sprint.startDate)} → {formatDate(sprint.endDate)}
               </div>
 
               <div>

@@ -139,6 +139,7 @@ function mapBackendIssue(b: any, existingIssue?: Issue): Issue {
 
 export const useStore = create<AppState>()((set, get) => ({
   users: [],
+  assignableUsers: [],
   projects: [],
   organizations: [],
   currentProjectId: null,

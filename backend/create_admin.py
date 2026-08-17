@@ -13,6 +13,10 @@ Environment variables (from .env):
 import asyncio
 import os
 import sys
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Allow running from the backend/ directory without installing the package.
 sys.path.insert(0, os.path.dirname(__file__))

@@ -135,3 +135,37 @@ export function getUserRoleLabel(user?: { role?: string; roles?: string[]; isSup
   return 'Developer / Tester';
 }
 
+export function isUuidOrHash(str?: string): boolean {
+  if (!str) return false;
+  const clean = str.trim();
+  const isFullUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(clean);
+  const isHexId = /^[0-9a-f]{4,8}$/i.test(clean);
+  return isFullUuid || isHexId;
+}
+
+export function getEpicDisplayName(epic?: { key?: string; title?: string } | null): string {
+  if (!epic) return '';
+  const key = epic.key && !isUuidOrHash(epic.key) ? epic.key : '';
+  const title = epic.title && !isUuidOrHash(epic.title) ? epic.title : '';
+  
+  if (key && title) return `${key}: ${title}`;
+  return key || title;
+}
+
+export function getShortDisplayName(item?: { key?: string; title?: string } | null): string {
+  if (!item) return '';
+  const key = item.key && !isUuidOrHash(item.key) ? item.key : '';
+  const title = item.title && !isUuidOrHash(item.title) ? item.title : '';
+  return key || title;
+}
+
+export function formatDate(dateStr?: string): string {
+  if (!dateStr) return 'No date';
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return 'No date';
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+
+
+

@@ -1,17 +1,18 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, ListTodo, KanbanSquare, Zap, Calendar, Map,
   Layers, BookOpen, CheckSquare, BarChart3, Users, Settings,
-  ChevronLeft, Plus, Atom
+  ChevronLeft, Plus
 } from 'lucide-react';
 import { useStore } from '../../store';
 import { cn } from '../../lib/utils';
 import { CreateIssueDialog } from '../common/CreateIssueDialog';
 import { CreateProjectDialog } from '../common/CreateProjectDialog';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FolderPlus } from 'lucide-react';
 import { canDeleteProject } from '../../lib/permissions';
+import iattLogo from '../../assets/IATT Logo.jpeg';
 
 const NAV_ITEMS = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -31,6 +32,28 @@ const NAV_ITEMS = [
 export function AppSidebar() {
   const { sidebarCollapsed, toggleSidebar, currentProject, users, currentUserId } = useStore();
   const currentUser = users.find(u => u.id === currentUserId);
+  const location = useLocation();
+
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (mobile && !sidebarCollapsed) {
+        useStore.setState({ sidebarCollapsed: true });
+      }
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (isMobile && !sidebarCollapsed) {
+      useStore.setState({ sidebarCollapsed: true });
+    }
+  }, [location, isMobile]);
 
   // canDeleteProject checks isSuperuser, role, and roles — same criteria as canCreateProject
   const canCreateProject = canDeleteProject(currentUser);
@@ -38,14 +61,24 @@ export function AppSidebar() {
 
   const [createIssueOpen, setCreateIssueOpen] = useState(false);
   const [createProjectOpen, setCreateProjectOpen] = useState(false);
-  const [createIssueDefaults, setCreateIssueDefaults] = useState<any>(null);
 
   return (
     <>
+      {/* Mobile Backdrop */}
+      {!sidebarCollapsed && isMobile && (
+        <div
+          className="fixed inset-0 bg-slate-950/60 z-20 md:hidden backdrop-blur-sm"
+          onClick={() => useStore.setState({ sidebarCollapsed: true })}
+        />
+      )}
+
       <motion.div
         className="fixed left-0 top-0 h-full z-30 flex flex-col glass-panel"
         style={{ borderRight: '1px solid var(--border)' }}
-        animate={{ width: sidebarCollapsed ? 72 : 280 }}
+        animate={{
+          width: isMobile ? 280 : (sidebarCollapsed ? 72 : 280),
+          x: isMobile ? (sidebarCollapsed ? -280 : 0) : 0
+        }}
         transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
       >
         {/* Brand */}
@@ -55,9 +88,13 @@ export function AppSidebar() {
         >
           <div
             className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 overflow-hidden"
-            style={{ background: 'var(--accent-dim)', border: '1px solid var(--border-strong)' }}
+            style={{ border: '1px solid var(--border-strong)' }}
           >
-            <Atom className="w-5 h-5" style={{ color: 'var(--accent)' }} />
+            <img
+              src={iattLogo}
+              alt="IATT Logo"
+              className="w-full h-full object-cover"
+            />
           </div>
           <AnimatePresence>
             {!sidebarCollapsed && (
@@ -69,7 +106,7 @@ export function AppSidebar() {
                 className="overflow-hidden flex-1"
               >
                 <p className="text-sm font-bold leading-tight" style={{ color: 'var(--text-primary)' }}>
-                  Antimatter PM
+                  IAT Technologies
                 </p>
                 {currentProject && (
                   <p className="text-[11px] font-medium truncate text-indigo-400 mt-0.5 flex items-center gap-1">

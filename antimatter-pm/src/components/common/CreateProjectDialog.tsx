@@ -83,7 +83,7 @@ export function CreateProjectDialog({ open, onClose, onCreated }: CreateProjectD
           initial={{ opacity: 0, scale: 0.95, y: 10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 10 }}
-          className="relative w-full max-w-lg rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 shadow-2xl backdrop-blur-xl p-6 overflow-hidden z-10"
+          className="relative w-full max-w-lg rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 shadow-2xl backdrop-blur-xl px-10 py-6 overflow-hidden z-10"
         >
           {/* Header */}
           <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
