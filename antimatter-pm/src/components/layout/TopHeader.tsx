@@ -229,9 +229,21 @@ export function TopHeader() {
             </AnimatePresence>
           </div>
 
-          {/* Avatar & Logout */}
+          {/* Avatar, Role Badge & Logout */}
           <div className="flex items-center gap-3 ml-1 pl-3 border-l border-slate-800">
-            {currentUser && <UserAvatar user={currentUser} size="sm" />}
+            {currentUser && (
+              <div className="flex items-center gap-2">
+                <UserAvatar user={currentUser} size="sm" />
+                <div className="hidden sm:flex flex-col">
+                  <span className="text-xs font-semibold text-slate-200 leading-none">{currentUser.name}</span>
+                  {isAdmin ? (
+                    <span className="text-[10px] font-bold text-amber-400 mt-0.5 uppercase tracking-wider">Administrator</span>
+                  ) : (
+                    <span className="text-[10px] text-slate-400 mt-0.5">{currentUser.role || 'Team Member'}</span>
+                  )}
+                </div>
+              </div>
+            )}
             <button
               onClick={async () => {
                 try {
@@ -241,7 +253,7 @@ export function TopHeader() {
                   window.location.href = '/login';
                 }
               }}
-              className="text-xs font-medium text-slate-400 hover:text-indigo-400 transition-colors"
+              className="text-xs font-medium text-slate-400 hover:text-indigo-400 transition-colors ml-1"
             >
               Logout
             </button>

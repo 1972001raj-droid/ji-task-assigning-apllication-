@@ -32,6 +32,10 @@ class SprintResponse(BaseModel):
     start_date: datetime
     due_date: datetime
     status: SprintStatus
+    effective_status: Optional[SprintStatus] = None
+    is_overdue: bool = False
+    days_remaining: Optional[int] = None
+    day_counter_text: Optional[str] = None
     created_by_id: uuid.UUID
     created_at: datetime
     updated_at: datetime

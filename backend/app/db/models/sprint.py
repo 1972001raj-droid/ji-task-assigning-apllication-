@@ -16,6 +16,7 @@ if TYPE_CHECKING:
 class SprintStatus(str, PyEnum):
     PLANNED = "PLANNED"
     ACTIVE = "ACTIVE"
+    OVERDUE = "OVERDUE"
     COMPLETED = "COMPLETED"
 
 
