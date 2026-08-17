@@ -38,7 +38,6 @@ export function AppSidebar() {
 
   const [createIssueOpen, setCreateIssueOpen] = useState(false);
   const [createProjectOpen, setCreateProjectOpen] = useState(false);
-  const [createIssueDefaults, setCreateIssueDefaults] = useState<any>(null);
 
   return (
     <>

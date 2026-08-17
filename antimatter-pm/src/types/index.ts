@@ -89,7 +89,11 @@ export interface Sprint {
   goal: string;
   startDate: string;
   endDate: string;
-  status: 'active' | 'planned' | 'completed';
+  status: 'active' | 'planned' | 'completed' | 'overdue';
+  effectiveStatus?: 'active' | 'planned' | 'completed' | 'overdue';
+  isOverdue?: boolean;
+  daysRemaining?: number;
+  dayCounterText?: string;
 }
 
 export interface Epic {

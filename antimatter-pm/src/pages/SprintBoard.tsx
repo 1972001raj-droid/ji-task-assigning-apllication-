@@ -98,9 +98,22 @@ export function SprintBoard() {
               </span>
             )}
           </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
-            {activeSprint ? `${activeSprint.name} · ${activeSprint.goal || 'Active Sprint'}` : 'All active project issues'}
-          </p>
+          <div className="flex items-center gap-2 mt-1">
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+              {activeSprint ? `${activeSprint.name} · ${activeSprint.goal || 'Active Sprint'}` : 'All active project issues'}
+            </p>
+            {activeSprint?.dayCounterText && (
+              <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border ${
+                activeSprint.isOverdue || activeSprint.status === 'overdue'
+                  ? 'bg-rose-500/10 text-rose-500 border-rose-500/20 animate-pulse'
+                  : activeSprint.dayCounterText.toLowerCase().includes('due today')
+                  ? 'bg-amber-500/10 text-amber-500 border-amber-500/20'
+                  : 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20'
+              }`}>
+                ⏱ {activeSprint.dayCounterText}
+              </span>
+            )}
+          </div>
         </div>
         <button
           onClick={() => setCreateForStatus('todo')}
