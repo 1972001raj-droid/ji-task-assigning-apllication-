@@ -256,10 +256,10 @@ export function IssueDrawer({ issue: propIssue, onClose, onSelectIssue }: Props)
         </div>
 
         {/* Scrollable Content Body: 2 Columns */}
-        <div className="flex-1 overflow-y-auto flex flex-col md:flex-row">
+        <div className="flex-1 h-0 overflow-y-auto flex flex-col md:flex-row">
 
           {/* Left Column: Main Content (~65% width) */}
-          <div className="flex-1 p-6 space-y-6 border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-800">
+          <div className="flex-1 p-6 pb-24 md:pb-6 space-y-6 border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-800">
 
             {/* AUTOMATIC HIERARCHY DETECTION BREADCRUMB: Project => Epic => User Story => Task */}
             <div className="flex items-center gap-1.5 text-xs text-slate-400 font-medium flex-wrap bg-slate-100/60 dark:bg-slate-800/40 p-2.5 rounded-xl border border-slate-200/60 dark:border-slate-800/60">
@@ -646,7 +646,7 @@ export function IssueDrawer({ issue: propIssue, onClose, onSelectIssue }: Props)
           </div>
 
           {/* Right Column: Metadata Panel (~35% width) */}
-          <div className="w-full md:w-72 p-6 bg-slate-50/60 dark:bg-slate-900/30 space-y-5 shrink-0">
+          <div className="w-full md:w-72 p-6 pb-24 md:pb-6 bg-slate-50/60 dark:bg-slate-900/30 space-y-5 shrink-0">
 
             {/* Status */}
             <div>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Zap, Calendar, Plus } from 'lucide-react';
+import { Calendar, Plus } from 'lucide-react';
 import { useStore } from '../store';
 import { toast } from 'sonner';
 import { formatDate } from '../lib/utils';
@@ -27,8 +27,12 @@ export function SprintsPage() {
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Sprints</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Manage release cycles and sprint goals.</p>
         </div>
-        <button onClick={() => setNewOpen(true)} className="btn-primary">
-          <Plus className="w-4 h-4" /> Create sprint
+        <button
+          onClick={() => setNewOpen(true)}
+          className="flex items-center gap-1 px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] sm:text-xs font-semibold shadow-md shadow-indigo-600/25 transition-all whitespace-nowrap min-w-max"
+        >
+          <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5]" />
+          <span>Create sprint</span>
         </button>
       </div>
 
@@ -47,7 +51,6 @@ export function SprintsPage() {
                   </span>
                   <h3 className="font-bold text-slate-900 dark:text-white text-lg mt-2">{sprint.name}</h3>
                 </div>
-                <Zap className="w-5 h-5 text-indigo-500" />
               </div>
 
               <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{sprint.goal || 'No goal set.'}</p>

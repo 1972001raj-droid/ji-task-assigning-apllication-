@@ -105,9 +105,9 @@ export function SprintBoard() {
         </div>
         <button
           onClick={() => setCreateForStatus('todo')}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-md shadow-indigo-600/25 transition-all animate-fade-in"
+          className="flex items-center gap-1 px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] sm:text-xs font-semibold shadow-md shadow-indigo-600/25 transition-all animate-fade-in whitespace-nowrap min-w-max"
         >
-          <Plus className="w-4 h-4 stroke-[2.5]" />
+          <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5]" />
           <span>Add task</span>
         </button>
       </div>
@@ -194,7 +194,7 @@ export function SprintBoard() {
                 {/* Add Quick Button */}
                 <button
                   onClick={() => setCreateForStatus(col)}
-                  className="mt-3 w-full py-2 flex items-center justify-center gap-1.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors"
+                  className="mt-3 w-full py-2 flex items-center justify-center gap-1.5 rounded-xl text-xs font-semibold text-indigo-500 dark:text-indigo-400 hover:bg-indigo-500/10 dark:hover:bg-indigo-500/10 transition-colors"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Add task</span>

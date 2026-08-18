@@ -62,14 +62,14 @@ export function Reports() {
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Reports</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             Sprint health, velocity, and team analytics.
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <select
             value={activeSprintId}
             onChange={(e) => setActiveSprintId(e.target.value)}
@@ -79,7 +79,7 @@ export function Reports() {
               <option key={s.id} value={s.id}>{s.name}</option>
             ))}
           </select>
-          <button onClick={exportCSV} className="btn-secondary">
+          <button onClick={exportCSV} className="btn-secondary whitespace-nowrap">
             <Download className="w-4 h-4" /> Export CSV
           </button>
         </div>
@@ -119,11 +119,13 @@ export function Reports() {
             <h2 className="font-bold text-slate-900 dark:text-white text-base">Status distribution</h2>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Story points by column</p>
           </div>
-          <div className="grid grid-cols-5 gap-3 pt-6 text-center">
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 pt-6 text-center">
             {Object.entries(statusStoryPoints).map(([status, pts]) => (
-              <div key={status} className="space-y-2">
+              <div key={status} className={`space-y-2 ${status === 'done' ? 'col-span-2 sm:col-span-1' : ''}`}>
                 <div className="h-2 rounded-full bg-indigo-500/80" />
-                <span className="text-xs text-slate-500 dark:text-slate-400 capitalize">{status}</span>
+                <span className="text-xs text-slate-500 dark:text-slate-400 capitalize whitespace-nowrap">
+                  {status.replace('-', ' ')}
+                </span>
                 <p className="text-lg font-bold text-slate-800 dark:text-slate-200">{pts} pts</p>
               </div>
             ))}
