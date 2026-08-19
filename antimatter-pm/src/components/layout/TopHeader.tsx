@@ -1,10 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
-import { Plus, Moon, Sun, Bell, Menu, LogOut } from 'lucide-react';
+import { Plus, Moon, Sun, Bell, Menu, LogOut, Search, ChevronDown, Trash2 } from 'lucide-react';
 import { AnimatePresence } from 'framer-motion';
 import { useStore } from '../../store';
 import { UserAvatar } from '../common/UserAvatar';
 import { CreateIssueDialog } from '../common/CreateIssueDialog';
 import { NotificationPanel } from '../common/NotificationPanel';
+import { CommandPalette } from '../common/CommandPalette';
+import { ConfirmDialog } from '../common/ConfirmDialog';
+import { canDeleteProject } from '../../lib/permissions';
+import { cn } from '../../lib/utils';
 
 export function TopHeader() {
   const {
@@ -15,6 +19,10 @@ export function TopHeader() {
     notifications,
     markAllNotificationsRead,
     toggleSidebar,
+    projects,
+    currentProject,
+    switchProject,
+    deleteProject,
   } = useStore();
 
   const currentUser = users.find(u => u.id === currentUserId)!;
@@ -26,8 +34,13 @@ export function TopHeader() {
   const [createIssueOpen, setCreateIssueOpen] = useState(false);
   const [createIssueDefaults, setCreateIssueDefaults] = useState<any>(null);
   const [notifOpen, setNotifOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [projectDropdownOpen, setProjectDropdownOpen] = useState(false);
+  const [projectToDelete, setProjectToDelete] = useState<any>(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
   const notifRef = useRef<HTMLDivElement>(null);
+  const projectDropdownRef = useRef<HTMLDivElement>(null);
 
   // Close menus on outside click
   useEffect(() => {
@@ -35,17 +48,34 @@ export function TopHeader() {
       if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
         setNotifOpen(false);
       }
+      if (projectDropdownRef.current && !projectDropdownRef.current.contains(e.target as Node)) {
+        setProjectDropdownOpen(false);
+      }
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
+
+  // Listen for Ctrl+K / Cmd+K to open search palette
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setSearchOpen(true);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  const canDelete = canDeleteProject(currentUser);
 
   return (
     <>
       <header className="h-[60px] shrink-0 flex items-center justify-between px-4 md:px-6 sticky top-0 z-20 backdrop-blur-xl bg-slate-900/80 border-b border-slate-800/80">
 
         {/* Left Section */}
-        <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+        <div className="flex items-center gap-3 sm:gap-4 min-w-0">
 
           {/* Hamburger Menu Trigger for Mobile */}
           <button
@@ -55,10 +85,86 @@ export function TopHeader() {
           >
             <Menu className="w-4.5 h-4.5" />
           </button>
+
+          {/* Project Switcher in Header */}
+          {currentProject && (
+            <div className="relative shrink-0" ref={projectDropdownRef}>
+              <button
+                onClick={() => setProjectDropdownOpen(!projectDropdownOpen)}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 hover:text-slate-900 transition-all duration-150 text-xs font-semibold shrink-0 cursor-pointer shadow-sm"
+              >
+                <span className="px-1.5 py-0.5 rounded bg-indigo-500/10 font-mono text-[9px] font-bold text-indigo-600">
+                  {currentProject.key}
+                </span>
+                <span className="truncate max-w-[120px]">{currentProject.name}</span>
+                <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
+              </button>
+
+              {/* Project dropdown menu */}
+              {projectDropdownOpen && (
+                <div className="absolute top-[calc(100%+6px)] left-0 w-64 z-40 bg-slate-900 border border-slate-800 rounded-xl shadow-xl p-1.5 max-h-60 overflow-y-auto space-y-1 backdrop-blur-xl">
+                  <div className="text-[10px] font-semibold text-slate-500 px-2 py-1 uppercase tracking-wider">Switch Project</div>
+                  {projects.map(proj => (
+                    <div
+                      key={proj.id}
+                      onClick={async () => {
+                        await switchProject(proj.id);
+                        setProjectDropdownOpen(false);
+                      }}
+                      className={cn(
+                        "flex items-center justify-between gap-2 px-2 py-1.5 rounded-lg text-xs cursor-pointer transition-colors",
+                        proj.id === currentProject?.id
+                          ? "bg-indigo-600/15 text-indigo-400 font-medium"
+                          : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                      )}
+                    >
+                      <div className="flex items-center gap-2 min-w-0 flex-1">
+                        <span className="px-1.5 py-0.5 rounded bg-slate-850 font-mono text-[9px] font-bold text-slate-400 shrink-0">
+                          {proj.key}
+                        </span>
+                        <span className="truncate">{proj.name}</span>
+                      </div>
+                      {canDelete && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setProjectToDelete(proj);
+                            setDeleteConfirmOpen(true);
+                          }}
+                          className="p-1 rounded hover:bg-rose-500/20 text-slate-500 hover:text-rose-400 transition-colors shrink-0"
+                          title="Delete Project"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Desktop Search Bar Trigger (placed right next to Project Switcher) */}
+          <button
+            onClick={() => setSearchOpen(true)}
+            className="hidden md:flex items-center gap-2.5 w-64 px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-700 transition-all duration-150 text-left cursor-pointer shrink-0 shadow-sm"
+          >
+            <Search className="w-4 h-4 text-slate-400" />
+            <span className="text-xs text-slate-500">Search issues, epics, people...</span>
+          </button>
         </div>
 
         {/* Right Section: Actions & User */}
         <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+          {/* Mobile Search Button */}
+          <button
+            onClick={() => setSearchOpen(true)}
+            className="w-8 h-8 flex md:hidden items-center justify-center rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors shrink-0"
+            title="Search"
+          >
+            <Search className="w-4.5 h-4.5" />
+          </button>
+
           {(isAdmin || isManager) && (
             <button
               onClick={() => setCreateIssueOpen(true)}
@@ -124,7 +230,31 @@ export function TopHeader() {
         onClose={() => { setCreateIssueOpen(false); setCreateIssueDefaults(null); }}
         defaults={createIssueDefaults}
       />
+
+      <CommandPalette
+        open={searchOpen}
+        onClose={() => setSearchOpen(false)}
+      />
+
+      <ConfirmDialog
+        open={deleteConfirmOpen}
+        title="Delete Project"
+        message={projectToDelete ? `Are you sure you want to delete the project "${projectToDelete.name}"? This action cannot be undone.` : ''}
+        confirmLabel="Delete"
+        onConfirm={async () => {
+          if (projectToDelete) {
+            await deleteProject(projectToDelete.id);
+            setDeleteConfirmOpen(false);
+            setProjectToDelete(null);
+            setProjectDropdownOpen(false);
+          }
+        }}
+        onCancel={() => {
+          setDeleteConfirmOpen(false);
+          setProjectToDelete(null);
+        }}
+        danger
+      />
     </>
   );
 }
-

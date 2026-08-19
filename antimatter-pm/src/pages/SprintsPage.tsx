@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Calendar, Plus } from 'lucide-react';
+import { Calendar, Plus, Clock, Pencil } from 'lucide-react';
 import { useStore } from '../store';
-import { toast } from 'sonner';
 import { formatDate } from '../lib/utils';
+import type { Sprint } from '../types';
 
 export function SprintsPage() {
   const { sprints, issues, createSprint, updateSprint, users, currentUserId } = useStore();
@@ -22,6 +22,8 @@ export function SprintsPage() {
   const [editName, setEditName] = useState('');
   const [editGoal, setEditGoal] = useState('');
   const [editStatus, setEditStatus] = useState<any>('active');
+  const [editStartDate, setEditStartDate] = useState('');
+  const [editEndDate, setEditEndDate] = useState('');
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,6 +48,8 @@ export function SprintsPage() {
       name: editName,
       goal: editGoal,
       status: editStatus,
+      startDate: editStartDate ? new Date(editStartDate).toISOString() : undefined,
+      endDate: editEndDate ? new Date(editEndDate).toISOString() : undefined
     });
     setEditingSprint(null);
   };
@@ -82,13 +86,15 @@ export function SprintsPage() {
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Sprints</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Manage release cycles, sprint goals, and active timelines.</p>
         </div>
-        <button
-          onClick={() => setNewOpen(true)}
-          className="flex items-center gap-1 px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] sm:text-xs font-semibold shadow-md shadow-indigo-600/25 transition-all whitespace-nowrap min-w-max"
-        >
-          <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5]" />
-          <span>Create sprint</span>
-        </button>
+        {canManage && (
+          <button
+            onClick={() => setNewOpen(true)}
+            className="flex items-center gap-1 px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] sm:text-xs font-semibold shadow-md shadow-indigo-600/25 transition-all whitespace-nowrap min-w-max"
+          >
+            <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5]" />
+            <span>Create sprint</span>
+          </button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -109,6 +115,22 @@ export function SprintsPage() {
                   </div>
                   <h3 className="font-bold text-slate-900 dark:text-white text-lg mt-2.5">{sprint.name}</h3>
                 </div>
+                {canManage && (
+                  <button
+                    onClick={() => {
+                      setEditingSprint(sprint);
+                      setEditName(sprint.name);
+                      setEditGoal(sprint.goal || '');
+                      setEditStatus(sprint.status);
+                      setEditStartDate(sprint.startDate ? sprint.startDate.split('T')[0] : '');
+                      setEditEndDate(sprint.endDate ? sprint.endDate.split('T')[0] : '');
+                    }}
+                    className="p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+                    title="Edit sprint"
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </button>
+                )}
               </div>
 
               <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{sprint.goal || 'No goal set.'}</p>
@@ -186,6 +208,16 @@ export function SprintsPage() {
                   <option value="active">Active</option>
                   <option value="completed">Completed</option>
                 </select>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Start Date</label>
+                  <input type="date" value={editStartDate} onChange={(e) => setEditStartDate(e.target.value)} className="input" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Due Date</label>
+                  <input type="date" value={editEndDate} onChange={(e) => setEditEndDate(e.target.value)} className="input" />
+                </div>
               </div>
               <div className="flex justify-end gap-2 pt-2">
                 <button type="button" onClick={() => setEditingSprint(null)} className="btn-secondary">Cancel</button>
