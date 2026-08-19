@@ -39,6 +39,7 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900">
         <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
+        
       </div>
     );
   }
