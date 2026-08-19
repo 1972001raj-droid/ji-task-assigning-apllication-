@@ -102,8 +102,8 @@ export function TopHeader() {
 
               {/* Project dropdown menu */}
               {projectDropdownOpen && (
-                <div className="absolute top-[calc(100%+6px)] left-0 w-64 z-40 bg-slate-900 border border-slate-800 rounded-xl shadow-xl p-1.5 max-h-60 overflow-y-auto space-y-1 backdrop-blur-xl">
-                  <div className="text-[10px] font-semibold text-slate-500 px-2 py-1 uppercase tracking-wider">Switch Project</div>
+                <div className="absolute top-[calc(100%+6px)] left-0 w-64 z-40 bg-white border border-slate-200 rounded-xl shadow-xl p-1.5 max-h-60 overflow-y-auto space-y-1">
+                  <div className="text-[10px] font-semibold text-slate-400 px-2 py-1 uppercase tracking-wider">Switch Project</div>
                   {projects.map(proj => (
                     <div
                       key={proj.id}
@@ -114,12 +114,15 @@ export function TopHeader() {
                       className={cn(
                         "flex items-center justify-between gap-2 px-2 py-1.5 rounded-lg text-xs cursor-pointer transition-colors",
                         proj.id === currentProject?.id
-                          ? "bg-indigo-600/15 text-indigo-400 font-medium"
-                          : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                          ? "bg-blue-50 text-blue-600 font-semibold"
+                          : "text-slate-750 hover:bg-blue-50/50 hover:text-blue-600"
                       )}
                     >
                       <div className="flex items-center gap-2 min-w-0 flex-1">
-                        <span className="px-1.5 py-0.5 rounded bg-slate-850 font-mono text-[9px] font-bold text-slate-400 shrink-0">
+                        <span className={cn(
+                          "px-1.5 py-0.5 rounded font-mono text-[9px] font-bold shrink-0",
+                          proj.id === currentProject?.id ? "bg-blue-100/50 text-blue-600" : "bg-slate-100 text-slate-500"
+                        )}>
                           {proj.key}
                         </span>
                         <span className="truncate">{proj.name}</span>
@@ -131,7 +134,7 @@ export function TopHeader() {
                             setProjectToDelete(proj);
                             setDeleteConfirmOpen(true);
                           }}
-                          className="p-1 rounded hover:bg-rose-500/20 text-slate-500 hover:text-rose-400 transition-colors shrink-0"
+                          className="p-1 rounded hover:bg-rose-50 text-slate-400 hover:text-rose-500 transition-colors shrink-0"
                           title="Delete Project"
                         >
                           <Trash2 className="w-3.5 h-3.5" />

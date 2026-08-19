@@ -83,7 +83,7 @@ export function AppSidebar() {
       >
         {/* Brand */}
         <div
-          className="flex items-center gap-3 px-4 py-4 shrink-0"
+          className="flex items-center gap-3 px-4 h-[60px] shrink-0"
           style={{ borderBottom: '1px solid var(--border)' }}
         >
           <div
