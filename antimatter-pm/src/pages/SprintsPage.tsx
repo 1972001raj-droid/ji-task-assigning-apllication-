@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Calendar, Plus, Clock, Edit2 } from 'lucide-react';
+import { Calendar, Plus } from 'lucide-react';
 import { useStore } from '../store';
-import type { Sprint } from '../types';
+import { toast } from 'sonner';
+import { formatDate } from '../lib/utils';
 
 export function SprintsPage() {
   const { sprints, issues, createSprint, updateSprint, users, currentUserId } = useStore();
@@ -81,11 +82,13 @@ export function SprintsPage() {
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Sprints</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Manage release cycles, sprint goals, and active timelines.</p>
         </div>
-        {canManage && (
-          <button onClick={() => setNewOpen(true)} className="btn-primary flex items-center gap-1.5 text-xs">
-            <Plus className="w-4 h-4" /> Create sprint
-          </button>
-        )}
+        <button
+          onClick={() => setNewOpen(true)}
+          className="flex items-center gap-1 px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] sm:text-xs font-semibold shadow-md shadow-indigo-600/25 transition-all whitespace-nowrap min-w-max"
+        >
+          <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5]" />
+          <span>Create sprint</span>
+        </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -106,27 +109,13 @@ export function SprintsPage() {
                   </div>
                   <h3 className="font-bold text-slate-900 dark:text-white text-lg mt-2.5">{sprint.name}</h3>
                 </div>
-                {canManage && (
-                  <button
-                    onClick={() => {
-                      setEditingSprint(sprint);
-                      setEditName(sprint.name);
-                      setEditGoal(sprint.goal || '');
-                      setEditStatus(sprint.status);
-                    }}
-                    className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors"
-                    title="Edit Sprint"
-                  >
-                    <Edit2 className="w-4 h-4" />
-                  </button>
-                )}
               </div>
 
               <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{sprint.goal || 'No goal set.'}</p>
 
               <div className="text-xs text-slate-400 flex items-center gap-1.5">
-                <Calendar className="w-3.5 h-3.5 text-slate-500" />
-                {sprint.startDate ? new Date(sprint.startDate).toLocaleDateString() : 'N/A'} → {sprint.endDate ? new Date(sprint.endDate).toLocaleDateString() : 'N/A'}
+                <Calendar className="w-3.5 h-3.5" />
+                {formatDate(sprint.startDate)} → {formatDate(sprint.endDate)}
               </div>
 
               <div>

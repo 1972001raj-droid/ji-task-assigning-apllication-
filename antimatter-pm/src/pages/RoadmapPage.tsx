@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Map, Layers } from 'lucide-react';
 import { useStore } from '../store';
-import { statusLabel } from '../lib/utils';
+import { statusLabel, isUuidOrHash } from '../lib/utils';
 import { IssueDrawer } from '../components/drawer/IssueDrawer';
 import type { Issue } from '../types';
 
@@ -64,7 +64,9 @@ export function RoadmapPage() {
                   </div>
                   <div className="min-w-0">
                     <h3 className="font-semibold text-xs text-slate-800 dark:text-slate-200 truncate">{epic.title}</h3>
-                    <span className="text-[10px] text-slate-400 font-mono">{epic.key}</span>
+                    {!isUuidOrHash(epic.key) && (
+                      <span className="text-[10px] text-slate-400 font-mono">{epic.key}</span>
+                    )}
                   </div>
                 </div>
 

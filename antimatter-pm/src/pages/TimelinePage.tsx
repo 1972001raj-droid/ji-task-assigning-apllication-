@@ -3,6 +3,7 @@ import { useStore } from '../store';
 import { IssueTypeIcon } from '../components/common/IssueTypeIcon';
 import { PriorityBadge } from '../components/common/PriorityBadge';
 import { UserAvatar } from '../components/common/UserAvatar';
+import { isUuidOrHash } from '../lib/utils';
 
 export function TimelinePage() {
   const { issues, users } = useStore();
@@ -29,7 +30,9 @@ export function TimelinePage() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <IssueTypeIcon type={issue.type} size="sm" />
-                    <span className="font-mono text-xs text-slate-400">{issue.key}</span>
+                    {!isUuidOrHash(issue.key) && (
+                      <span className="font-mono text-xs text-slate-400">{issue.key}</span>
+                    )}
                     <h3 className="font-semibold text-sm text-slate-900 dark:text-white">{issue.title}</h3>
                   </div>
                   <PriorityBadge priority={issue.priority} size="sm" />

@@ -4,7 +4,7 @@ import { useStore } from '../store';
 import type { Issue } from '../types';
 import { UserAvatar } from '../components/common/UserAvatar';
 import { PriorityBadge } from '../components/common/PriorityBadge';
-import { cn } from '../lib/utils';
+import { cn, isUuidOrHash } from '../lib/utils';
 import { IssueDrawer } from '../components/drawer/IssueDrawer';
 import { CreateIssueDialog } from '../components/common/CreateIssueDialog';
 
@@ -134,7 +134,9 @@ export function EpicsPage() {
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="font-mono text-xs font-bold text-purple-400">{epic.key || 'EPIC'}</span>
+                      {!isUuidOrHash(epic.key) && (
+                        <span className="font-mono text-xs font-bold text-purple-400">{epic.key}</span>
+                      )}
                       <PriorityBadge priority={epic.priority} size="sm" />
                     </div>
                     <h3 className="font-bold text-slate-900 dark:text-white text-base group-hover:text-purple-400 transition-colors leading-snug">
@@ -200,7 +202,9 @@ export function EpicsPage() {
               >
                 <div className="flex items-center gap-3 min-w-0 flex-1">
                   <Layers className="w-4 h-4 text-purple-500 shrink-0" />
-                  <span className="font-mono font-bold text-purple-400 shrink-0">{epic.key || 'EPIC'}</span>
+                  {!isUuidOrHash(epic.key) && (
+                    <span className="font-mono font-bold text-purple-400 shrink-0">{epic.key}</span>
+                  )}
                   <span className="font-semibold text-slate-900 dark:text-white truncate">{epic.title}</span>
                 </div>
 

@@ -325,201 +325,130 @@
 .gravity-stars-canvas.interactive { pointer-events: auto; }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   CYBERPUNK LOGIN INPUTS
+   MODERN & PROFESSIONAL LOGIN INPUTS
 ──────────────────────────────────────────────────────────────────────────── */
 
-/* Outer drop-shadow container that blinks between cyan and purple */
 .cp-input-container {
-  filter: drop-shadow(46px 36px 24px #4090b5) drop-shadow(-55px -40px 25px #9e30a9);
-  animation: blinkShadowsFilter 8s ease-in infinite;
   width: 100%;
 }
 
-/* Middle layer — scanline background + polygon clip */
 .cp-input-content {
-  position: relative;
-  display: grid;
-  align-content: center;
-  justify-items: center;
-  align-items: center;
-  text-align: center;
-  padding-inline: 1em;
-}
-
-/* Blurred glow overlay on focus */
-.cp-input-content::before {
-  content: "";
-  position: absolute;
   width: 100%;
-  height: 100%;
-  filter: blur(40px);
-  -webkit-clip-path: polygon(26% 0, 66% 0, 92% 0, 100% 8%, 100% 89%, 91% 100%, 7% 100%, 0 92%, 0 0);
-  clip-path: polygon(26% 0, 66% 0, 92% 0, 100% 8%, 100% 89%, 91% 100%, 7% 100%, 0 92%, 0 0);
-  background: rgba(122, 251, 255, 0.25);
-  transition: all 1s ease-in-out;
-  pointer-events: none;
 }
 
-/* Scanline grid background */
-.cp-input-content::after {
-  content: "";
-  position: absolute;
-  width: 98%;
-  height: 98%;
-  box-shadow: inset 0px 0px 20px 20px #212121;
-  background:
-    repeating-linear-gradient(
-      to bottom,
-      transparent 0%,
-      rgba(64, 144, 181, 0.6) 1px,
-      rgb(0, 0, 0) 3px,
-      hsl(295, 60%, 12%) 5px,
-      #153544 4px,
-      transparent 0.5%
-    ),
-    repeating-linear-gradient(
-      to left,
-      hsl(295, 60%, 12%) 100%,
-      hsla(295, 60%, 12%, 0.99) 100%
-    );
-  -webkit-clip-path: polygon(26% 0, 31% 5%, 61% 5%, 66% 0, 92% 0, 100% 8%, 100% 89%, 91% 100%, 7% 100%, 0 92%, 0 0);
-  clip-path: polygon(26% 0, 31% 5%, 61% 5%, 66% 0, 92% 0, 100% 8%, 100% 89%, 91% 100%, 7% 100%, 0 92%, 0 0);
-  animation: backglitch 50ms linear infinite;
-  pointer-events: none;
-}
-
-/* Focus brightens the glow overlay */
-.cp-input-content:focus-within::before {
-  transition: all 1s ease-in-out;
-  background: hsla(0, 0%, 100%, 0.55);
-}
-
-/* Inner distribution grid */
 .cp-input-dist {
-  z-index: 80;
   position: relative;
-  display: grid;
-  align-items: center;
-  text-align: center;
   width: 100%;
-  padding-inline: 1em;
-  padding-block: 1.2em;
-  grid-template-columns: 1fr;
+  padding: 0;
 }
 
-/* Column of inputs */
 .cp-input-type {
   display: flex;
   flex-direction: column;
-  gap: 1em;
-  font-size: 1.1rem;
-  background-color: transparent;
+  gap: 1.25rem;
   width: 100%;
-  border: none;
 }
 
-/* Individual input */
+/* Elegant, rounded input fields with subtle dark bg and borders */
 .cp-input-is {
-  color: #fff;
-  font-size: 0.875rem;
-  background-color: transparent;
+  color: #ffffff;
+  font-size: 0.9rem;
+  background-color: rgba(5, 12, 24, 0.5);
   width: 100%;
   box-sizing: border-box;
-  padding-inline: 0.5em;
-  padding-block: 0.7em;
-  border: none;
-  transition: all 0.6s ease-in-out;
-  border-bottom: 1px solid hsl(221, 26%, 43%);
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .cp-input-is::placeholder {
-  color: hsla(192, 100%, 88%, 0.55);
+  color: rgba(255, 255, 255, 0.3);
 }
 
 .cp-input-is::-moz-placeholder {
-  color: hsla(192, 100%, 88%, 0.55);
+  color: rgba(255, 255, 255, 0.3);
 }
 
 .cp-input-is:hover {
-  background: linear-gradient(90deg, transparent 0%, rgba(102, 224, 255, 0.15) 27%, rgba(102, 224, 255, 0.15) 63%, transparent 100%);
+  border-color: rgba(59, 130, 246, 0.45);
+  background-color: rgba(5, 12, 24, 0.6);
 }
 
 .cp-input-is:focus {
   outline: none;
-  border-bottom: 1px solid hsl(192, 100%, 100%);
-  color: hsl(192, 100%, 88%);
-  background: linear-gradient(90deg, transparent 0%, rgba(102, 224, 255, 0.2) 27%, rgba(102, 224, 255, 0.2) 63%, transparent 100%);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  background-color: rgba(5, 12, 24, 0.7);
 }
 
-/* Label inside the widget */
+/* Minimalist, clean label */
 .cp-label {
-  color: hsla(192, 100%, 88%, 0.65);
+  color: rgba(255, 255, 255, 0.65);
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.05em;
   text-align: left;
   text-transform: uppercase;
-  margin-bottom: 2px;
+  margin-bottom: 6px;
+  display: block;
 }
 
-/* Submit button */
+/* Professional Solid Blue Brand Button */
 .cp-submit-button {
-  width: 60%;
+  width: 100%;
   border: none;
-  color: hsla(192, 100%, 88%, 0.9);
-  background: linear-gradient(90deg, transparent 0%, rgba(102, 224, 255, 0.22) 27%, rgba(102, 224, 255, 0.22) 63%, transparent 100%);
-  clip-path: polygon(0 0, 85% 0%, 100% 0, 100% 15%, 100% 90%, 91% 100%, 0 100%);
-  padding: 0.65em 1em;
-  animation: blinkShadowsFilter 0.5s ease-in infinite;
-  transition: all 500ms;
-  font-size: 0.9rem;
-  font-weight: 700;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  letter-spacing: 0.08em;
-  cursor: pointer;
-}
-.cp-submit-button:hover {
-  color: #fff;
+  color: #ffffff;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  border-radius: 8px;
+  padding: 12px 24px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   font-size: 0.95rem;
-  background: linear-gradient(90deg, transparent 0%, rgba(102, 224, 255, 0.35) 27%, rgba(102, 224, 255, 0.35) 63%, transparent 100%);
+  font-weight: 600;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
 }
+
+.cp-submit-button:hover {
+  background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
+  transform: translateY(-1px);
+}
+
+.cp-submit-button:active {
+  transform: translateY(1px);
+}
+
 .cp-submit-button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  animation: none;
+  transform: none;
+  box-shadow: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.4);
 }
 
 /* Eye-toggle button next to password */
 .cp-eye-btn {
   position: absolute;
-  right: 0.5em;
+  right: 12px;
   top: 50%;
   transform: translateY(-50%);
   background: transparent;
   border: none;
   cursor: pointer;
-  color: hsla(192, 100%, 88%, 0.55);
+  color: rgba(255, 255, 255, 0.4);
   display: flex;
   align-items: center;
   padding: 4px;
   transition: color 0.2s ease;
   z-index: 90;
 }
-.cp-eye-btn:hover { color: hsl(192, 100%, 88%); }
 
-/* ── Keyframes ────────────────────────────────────────────── */
-@keyframes backglitch {
-  0%  { box-shadow: inset 0px  20px 20px 30px #212121; }
-  50% { box-shadow: inset 0px -20px 20px 30px hsl(297, 42%, 10%); }
-  to  { box-shadow: inset 0px  20px 20px 30px #212121; }
-}
-
-@keyframes blinkShadowsFilter {
-  0%  { filter: drop-shadow(46px  36px 28px rgba(64,144,181,0.34)) drop-shadow(-55px -40px 28px #9e30a9); }
-  25% { filter: drop-shadow(46px -36px 24px rgba(64,144,181,0.90)) drop-shadow(-55px  40px 24px #9e30a9); }
-  50% { filter: drop-shadow(46px  36px 30px rgba(64,144,181,0.90)) drop-shadow(-55px  40px 30px rgba(159,48,169,0.29)); }
-  75% { filter: drop-shadow(20px -18px 25px rgba(64,144,181,0.90)) drop-shadow(-20px  20px 25px rgba(159,48,169,0.29)); }
-  to  { filter: drop-shadow(46px  36px 28px rgba(64,144,181,0.34)) drop-shadow(-55px -40px 28px #9e30a9); }
+.cp-eye-btn:hover {
+  color: #ffffff;
 }
 

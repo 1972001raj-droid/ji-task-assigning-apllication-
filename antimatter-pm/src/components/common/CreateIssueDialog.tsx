@@ -4,7 +4,7 @@ import { X, Layers, BookOpen, CheckSquare } from 'lucide-react';
 import { useStore } from '../../store';
 import type { IssueType, Status, Priority } from '../../types';
 import { toast } from 'sonner';
-import { getUserRoleLabel } from '../../lib/utils';
+import { getUserRoleLabel, isUuidOrHash } from '../../lib/utils';
 
 interface Props {
   open: boolean;
@@ -66,7 +66,7 @@ export function CreateIssueDialog({ open, onClose, defaults }: Props) {
         fetchAssignableUsers(currentProject.id);
       }
     }
-  }, [open, defaults, issues, currentProject?.id]);
+  }, [open]);
 
   // When story selection changes for Task, derive & lock Epic
   const handleStoryChange = (storyId: string) => {
@@ -155,7 +155,7 @@ export function CreateIssueDialog({ open, onClose, defaults }: Props) {
           initial={{ opacity: 0, scale: 0.96, y: 12 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.96, y: 12 }}
-          className="relative w-full max-w-2xl rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 shadow-2xl backdrop-blur-xl p-6 overflow-hidden z-10 max-h-[90vh] flex flex-col"
+          className="relative w-full max-w-2xl rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 shadow-2xl backdrop-blur-xl px-6 sm:px-10 py-6 overflow-hidden z-10 max-h-[90vh] flex flex-col"
         >
           {/* Header */}
           <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800 shrink-0">
@@ -179,7 +179,7 @@ export function CreateIssueDialog({ open, onClose, defaults }: Props) {
           </div>
 
           {/* Form Content */}
-          <form onSubmit={handleSubmit} className="mt-4 space-y-4 overflow-y-auto pr-1 flex-1">
+          <form onSubmit={handleSubmit} className="mt-4 space-y-4 overflow-y-auto px-1.5 pr-2 flex-1">
 
             {/* Type Selector (No Subtask) */}
             <div>
@@ -230,7 +230,7 @@ export function CreateIssueDialog({ open, onClose, defaults }: Props) {
                   <option value="">Select Parent Epic...</option>
                   {epics.map((epic) => (
                     <option key={epic.id} value={epic.id}>
-                      {epic.key ? `${epic.key}: ` : ''}{epic.title}
+                      {epic.key && !isUuidOrHash(epic.key) ? `${epic.key}: ` : ''}{epic.title}
                     </option>
                   ))}
                 </select>
@@ -252,7 +252,7 @@ export function CreateIssueDialog({ open, onClose, defaults }: Props) {
                   <option value="">Select Parent User Story...</option>
                   {availableStories.map((story) => (
                     <option key={story.id} value={story.id}>
-                      {story.key ? `${story.key}: ` : ''}{story.title}
+                      {story.key && !isUuidOrHash(story.key) ? `${story.key}: ` : ''}{story.title}
                     </option>
                   ))}
                 </select>
@@ -280,7 +280,7 @@ export function CreateIssueDialog({ open, onClose, defaults }: Props) {
             </div>
 
             {/* Grid 1: Status, Priority, Sprint */}
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                   Initial Status
@@ -334,7 +334,7 @@ export function CreateIssueDialog({ open, onClose, defaults }: Props) {
             </div>
 
             {/* Grid 2: Assignee, Story Points (Story Points hidden for Epic) */}
-            <div className={`grid ${type === 'epic' ? 'grid-cols-1' : 'grid-cols-2'} gap-3`}>
+            <div className={`grid ${type === 'epic' ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2'} gap-3`}>
               <div>
                 <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                   Assignee (Developer / Tester)

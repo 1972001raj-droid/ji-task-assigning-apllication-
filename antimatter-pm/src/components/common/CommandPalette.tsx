@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Search, LayoutDashboard, ListTodo, KanbanSquare, Layers, BarChart3, Users, X } from 'lucide-react';
 import { useStore } from '../../store';
 import { IssueTypeIcon } from './IssueTypeIcon';
+import { isUuidOrHash } from '../../lib/utils';
 
 interface Props {
   open: boolean;
@@ -91,7 +92,9 @@ export function CommandPalette({ open, onClose }: Props) {
               {matchedIssues.map(issue => (
                 <button key={issue.id} onClick={() => onClose()} className="flex items-center gap-3 w-full px-3 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-sm text-left transition-colors">
                   <IssueTypeIcon type={issue.type} size="sm" />
-                  <span className="text-slate-400 text-xs font-mono">{issue.key}</span>
+                  {!isUuidOrHash(issue.key) && (
+                    <span className="text-slate-400 text-xs font-mono">{issue.key}</span>
+                  )}
                   <span className="text-slate-700 dark:text-slate-300 flex-1 truncate">{issue.title}</span>
                 </button>
               ))}
@@ -105,7 +108,9 @@ export function CommandPalette({ open, onClose }: Props) {
               {matchedEpics.map(epic => (
                 <button key={epic.id} onClick={() => goTo('/epics')} className="flex items-center gap-3 w-full px-3 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-sm text-left transition-colors">
                   <Layers className="w-4 h-4 text-indigo-500" />
-                  <span className="text-slate-400 text-xs font-mono">{epic.key}</span>
+                  {!isUuidOrHash(epic.key) && (
+                    <span className="text-slate-400 text-xs font-mono">{epic.key}</span>
+                  )}
                   <span className="text-slate-700 dark:text-slate-300 flex-1 truncate">{epic.title}</span>
                 </button>
               ))}

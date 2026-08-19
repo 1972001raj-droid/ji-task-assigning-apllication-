@@ -6,7 +6,8 @@ import {
   mapUIStatusToBackend,
   mapBackendTypeToUI,
   mapUITypeToBackend,
-  mapBackendPriorityToUI
+  mapBackendPriorityToUI,
+  isUuidOrHash
 } from '../lib/utils';
 import type {
   User, Label, Sprint, Epic, Issue, Comment, AcceptanceCriterion,
@@ -586,7 +587,10 @@ export const useStore = create<AppState>()((set, get) => ({
         set(s => ({ issues: [...s.issues, newIssue] }));
       }
 
-      toast.success(`Created ${data.type === 'story' ? 'User Story' : data.type} ${newIssue.key || ''}`);
+      const typeLabel = data.type === 'story' ? 'User Story' : (data.type === 'epic' ? 'Epic' : data.type);
+      const isRealKey = newIssue.key && !isUuidOrHash(newIssue.key);
+      const nameOrKey = isRealKey ? newIssue.key : `"${newIssue.title}"`;
+      toast.success(`Created ${typeLabel} ${nameOrKey}`);
 
       // Refetch project data to ensure hierarchy links are fresh
       await get().switchProject(projectId);
@@ -690,7 +694,9 @@ export const useStore = create<AppState>()((set, get) => ({
         await get().switchProject(get().currentProjectId!);
       }
 
-      toast.success(`Moved ${issue.key} to ${status.replace('-', ' ')}`);
+      const isRealKey = issue.key && !isUuidOrHash(issue.key);
+      const nameOrKey = isRealKey ? issue.key : `"${issue.title}"`;
+      toast.success(`Moved ${nameOrKey} to ${status.replace('-', ' ')}`);
       return true;
     } catch (e: any) {
       // Revert local state

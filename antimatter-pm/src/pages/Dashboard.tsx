@@ -81,8 +81,12 @@ export function Dashboard() {
           </h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1">Here's what's happening across your projects today.</p>
         </div>
-        <button onClick={() => navigate('/board')} className="btn-secondary gap-2">
-          Open sprint board <ArrowRight className="w-4 h-4" />
+        <button onClick={() => navigate('/board')} className="btn-secondary gap-2 flex items-center justify-between text-[10px] sm:text-xs py-2 px-3 min-w-[90px] sm:min-w-0 shrink-0">
+          <div className="flex flex-col items-start text-left leading-tight">
+            <span>Open sprint</span>
+            <span>board</span>
+          </div>
+          <ArrowRight className="w-3.5 h-3.5 shrink-0" />
         </button>
       </div>
 

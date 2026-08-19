@@ -6,12 +6,13 @@ import { api } from '../lib/api';
 import { useStore } from '../store';
 import { FlipText } from '../components/common/FlipText';
 import { GravityStarsBackground } from '../components/common/GravityStarsBackground';
+import iattLogo from '../assets/IATT Logo.jpeg';
 
 export function Login() {
-  const [email,       setEmail]       = useState('');
-  const [password,    setPassword]    = useState('');
-  const [loading,     setLoading]     = useState(false);
-  const [showPass,    setShowPass]    = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [showPass, setShowPass] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -70,59 +71,59 @@ export function Login() {
           background: 'radial-gradient(ellipse 50% 40% at 50% 50%, rgba(59,158,255,0.08) 0%, transparent 70%)',
         }}
       />
-
       {/* ── Login Card ── */}
       <div
         style={{
           position: 'relative',
           zIndex: 10,
           width: '100%',
-          maxWidth: '440px',
-          borderRadius: '20px',
-          padding: '36px 28px 28px',
+          maxWidth: '420px',
+          padding: '40px 32px',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: '22px',
-          background: 'rgba(8, 16, 38, 0.88)',
-          backdropFilter: 'blur(28px)',
-          WebkitBackdropFilter: 'blur(28px)',
-          border: '1px solid rgba(64,144,181,0.20)',
-          boxShadow: '0 8px 48px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.04)',
+          gap: '24px',
+          background: 'rgba(8, 14, 28, 0.65)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          border: '1px solid rgba(255, 255, 255, 0.05)',
+          borderRadius: '16px',
+          boxShadow: '0 24px 60px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.04)',
         }}
       >
         {/* ── Header ── */}
         <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '14px', width: '100%' }}>
-          {/* Black gradient logo box */}
+          {/* Black gradient logo box with IATT Logo */}
           <div
             style={{
-              width: '88px',
-              height: '88px',
-              borderRadius: '18px',
+              width: '80px',
+              height: '80px',
+              borderRadius: '14px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               background: 'linear-gradient(145deg, #090f1e 0%, #0d1b38 50%, #070c18 100%)',
-              border: '1px solid rgba(64,144,181,0.25)',
-              boxShadow: '0 4px 24px rgba(0,0,0,0.6), 0 0 24px rgba(64,144,181,0.12)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.35)',
+              overflow: 'hidden',
             }}
           >
-            <div className="logo-loader">
-              <div className="logo-loader-square" />
-              <div className="logo-loader-square" />
-              <div className="logo-loader-square" />
-              <div className="logo-loader-square" />
-              <div className="logo-loader-square" />
-              <div className="logo-loader-square" />
-              <div className="logo-loader-square" />
-            </div>
+            <img
+              src={iattLogo}
+              alt="IATT Logo"
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+              }}
+            />
           </div>
 
           {/* White FlipText title */}
           <div>
             <h1 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 700 }}>
               <FlipText duration={3} delay={0} loop={true} style={{ color: '#ffffff' }}>
-                Antimatter PM
+                IAT Technologies
               </FlipText>
             </h1>
             <p style={{ margin: '6px 0 0', fontSize: '0.8125rem', color: 'rgba(122,251,255,0.50)' }}>
@@ -177,7 +178,7 @@ export function Login() {
                       >
                         {showPass
                           ? <EyeOff style={{ width: 15, height: 15 }} />
-                          : <Eye    style={{ width: 15, height: 15 }} />
+                          : <Eye style={{ width: 15, height: 15 }} />
                         }
                       </button>
                     </div>

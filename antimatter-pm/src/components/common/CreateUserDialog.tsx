@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, UserPlus, Shield, UserCheck, Lock, Mail, User } from 'lucide-react';
 import { useStore } from '../../store';
 
+
 interface Props {
   open: boolean;
   onClose: () => void;
@@ -172,7 +173,7 @@ export function CreateUserDialog({ open, onClose, onCreated }: Props) {
             </div>
 
             {/* Username & Email */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                   Username <span className="text-rose-500">*</span>

@@ -9,9 +9,10 @@ import { useStore } from '../../store';
 import type { Issue, Status, Priority, AcceptanceCriterion, Comment } from '../../types';
 import { StatusBadge } from '../common/StatusBadge';
 import { IssueTypeIcon } from '../common/IssueTypeIcon';
-import { statusLabel, formatRelativeDate, cn, issueTypeLabel, getUserRoleLabel } from '../../lib/utils';
+import { statusLabel, formatRelativeDate, cn, issueTypeLabel, getUserRoleLabel, getEpicDisplayName, isUuidOrHash } from '../../lib/utils';
 import { ConfirmDialog } from '../common/ConfirmDialog';
 import { CreateIssueDialog } from '../common/CreateIssueDialog';
+import { DatePicker } from '../common/DatePicker';
 
 interface Props {
   issue: Issue | null;
@@ -220,8 +221,12 @@ export function IssueDrawer({ issue: propIssue, onClose, onSelectIssue }: Props)
             <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               {issueTypeLabel(issue.type)}
             </span>
-            <span className="text-xs font-mono font-bold text-slate-400">/</span>
-            <span className="text-xs font-mono font-bold text-indigo-400">{issue.key}</span>
+            {!isUuidOrHash(issue.key) && (
+              <>
+                <span className="text-xs font-mono font-bold text-slate-400">/</span>
+                <span className="text-xs font-mono font-bold text-indigo-400">{issue.key}</span>
+              </>
+            )}
             <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
             <StatusBadge status={issue.status} size="sm" />
           </div>
@@ -251,17 +256,17 @@ export function IssueDrawer({ issue: propIssue, onClose, onSelectIssue }: Props)
         </div>
 
         {/* Scrollable Content Body: 2 Columns */}
-        <div className="flex-1 overflow-y-auto flex flex-col md:flex-row">
+        <div className="flex-1 h-0 overflow-y-auto flex flex-col md:flex-row">
 
           {/* Left Column: Main Content (~65% width) */}
-          <div className="flex-1 p-6 space-y-6 border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-800">
+          <div className="flex-1 p-6 pb-24 md:pb-6 space-y-6 border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-800">
 
             {/* AUTOMATIC HIERARCHY DETECTION BREADCRUMB: Project => Epic => User Story => Task */}
             <div className="flex items-center gap-1.5 text-xs text-slate-400 font-medium flex-wrap bg-slate-100/60 dark:bg-slate-800/40 p-2.5 rounded-xl border border-slate-200/60 dark:border-slate-800/60">
               <span className="text-indigo-600 dark:text-indigo-400 font-semibold">{currentProject?.name || 'Project'}</span>
               <span className="text-slate-400 font-bold">⇒</span>
 
-              {parentEpic && (
+              {parentEpic && getEpicDisplayName(parentEpic) && (
                 <>
                   <button
                     onClick={() => {
@@ -270,7 +275,7 @@ export function IssueDrawer({ issue: propIssue, onClose, onSelectIssue }: Props)
                     }}
                     className="text-purple-600 dark:text-purple-400 font-semibold hover:underline truncate max-w-[140px]"
                   >
-                    {parentEpic.key ? `${parentEpic.key}: ` : ''}{parentEpic.title}
+                    {getEpicDisplayName(parentEpic)}
                   </button>
                   <span className="text-slate-400 font-bold">⇒</span>
                 </>
@@ -282,7 +287,7 @@ export function IssueDrawer({ issue: propIssue, onClose, onSelectIssue }: Props)
                     onClick={() => onSelectIssue && onSelectIssue(parentStory)}
                     className="text-emerald-600 dark:text-emerald-400 font-semibold hover:underline truncate max-w-[140px]"
                   >
-                    {parentStory.key ? `${parentStory.key}: ` : ''}{parentStory.title}
+                    {parentStory.key && !isUuidOrHash(parentStory.key) ? `${parentStory.key}: ` : ''}{parentStory.title}
                   </button>
                   <span className="text-slate-400 font-bold">⇒</span>
                 </>
@@ -294,7 +299,7 @@ export function IssueDrawer({ issue: propIssue, onClose, onSelectIssue }: Props)
                     onClick={() => onSelectIssue && onSelectIssue(parentTask)}
                     className="text-blue-600 dark:text-blue-400 font-semibold hover:underline truncate max-w-[140px]"
                   >
-                    {parentTask.key ? `${parentTask.key}: ` : ''}{parentTask.title}
+                    {parentTask.key && !isUuidOrHash(parentTask.key) ? `${parentTask.key}: ` : ''}{parentTask.title}
                   </button>
                   <span className="text-slate-400 font-bold">⇒</span>
                 </>
@@ -437,7 +442,7 @@ export function IssueDrawer({ issue: propIssue, onClose, onSelectIssue }: Props)
                           isDone && 'line-through text-slate-400'
                         )}
                       >
-                        {child.key ? `${child.key}: ` : ''}{child.title}
+                        {child.key && !isUuidOrHash(child.key) ? `${child.key}: ` : ''}{child.title}
                       </span>
                     </div>
                   );
@@ -495,7 +500,9 @@ export function IssueDrawer({ issue: propIssue, onClose, onSelectIssue }: Props)
                     >
                       <div className="flex items-center gap-2 min-w-0">
                         <IssueTypeIcon type={lt.type} size="sm" />
-                        <span className="font-mono text-xs font-semibold text-slate-400 shrink-0">{lt.key}</span>
+                        {!isUuidOrHash(lt.key) && (
+                          <span className="font-mono text-xs font-semibold text-slate-400 shrink-0">{lt.key}</span>
+                        )}
                         <span className="text-xs font-medium text-slate-800 dark:text-slate-200 truncate">{lt.title}</span>
                       </div>
                       <StatusBadge status={lt.status} size="sm" />
@@ -639,7 +646,7 @@ export function IssueDrawer({ issue: propIssue, onClose, onSelectIssue }: Props)
           </div>
 
           {/* Right Column: Metadata Panel (~35% width) */}
-          <div className="w-full md:w-72 p-6 bg-slate-50/60 dark:bg-slate-900/30 space-y-5 shrink-0">
+          <div className="w-full md:w-72 p-6 pb-24 md:pb-6 bg-slate-50/60 dark:bg-slate-900/30 space-y-5 shrink-0">
 
             {/* Status */}
             <div>
@@ -733,11 +740,9 @@ export function IssueDrawer({ issue: propIssue, onClose, onSelectIssue }: Props)
               <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
                 Due Date
               </label>
-              <input
-                type="date"
-                defaultValue={issue.dueDate ? issue.dueDate.substring(0, 10) : ''}
-                onChange={e => updateIssue(issue.id, { dueDate: e.target.value || undefined })}
-                className="w-full h-9 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 text-xs font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 cursor-pointer"
+              <DatePicker
+                value={issue.dueDate ? issue.dueDate.substring(0, 10) : ''}
+                onChange={val => updateIssue(issue.id, { dueDate: val || undefined })}
               />
             </div>
 
