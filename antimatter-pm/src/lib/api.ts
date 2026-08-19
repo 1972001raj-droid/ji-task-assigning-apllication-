@@ -2,9 +2,11 @@ import axios from 'axios';
 
 // Create an Axios instance
 export const api = axios.create({
-  // Vite forwards this same-origin path to FastAPI in development. This also
-  // makes a single tunnel URL work for both the UI and the API.
-  baseURL: '/api/v1',
+  // Use localhost (not 127.0.0.1) so both the Vite dev server (localhost:5173)
+  // and the backend (localhost:8000) share the same hostname — making them
+  // same-site. This allows SameSite=lax session cookies to be sent on every
+  // request. Using 127.0.0.1 vs localhost causes cross-site cookie blocking.
+  baseURL: 'http://localhost:8000/api/v1',
   withCredentials: true, // Crucial for sending/receiving session cookies
   headers: {
     'Content-Type': 'application/json',

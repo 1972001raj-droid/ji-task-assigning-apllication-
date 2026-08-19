@@ -19,10 +19,15 @@ import { Loader2 } from 'lucide-react';
 
 function AuthGuard({ children }: { children: React.ReactNode }) {
   const { currentUserId, fetchInitialData } = useStore();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!currentUserId); // skip loading if already logged in
   const location = useLocation();
 
   useEffect(() => {
+    // If currentUserId is already set (e.g. just logged in), skip re-fetching
+    if (currentUserId) {
+      setLoading(false);
+      return;
+    }
     const init = async () => {
       try {
         await fetchInitialData();
@@ -33,7 +38,7 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
       }
     };
     init();
-  }, [fetchInitialData]);
+  }, [fetchInitialData, currentUserId]);
 
   if (loading) {
     return (
