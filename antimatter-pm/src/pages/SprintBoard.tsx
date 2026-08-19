@@ -7,6 +7,7 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
+  useDroppable,
   type DragStartEvent,
   type DragEndEvent,
 } from '@dnd-kit/core';
@@ -23,6 +24,57 @@ import { IssueCard } from '../components/kanban/IssueCard';
 import { IssueDrawer } from '../components/drawer/IssueDrawer';
 import { CreateIssueDialog } from '../components/common/CreateIssueDialog';
 import { cn, statusLabel, statusDotColor } from '../lib/utils';
+
+interface BoardColumnProps {
+  col: Status;
+  activeTab: Status;
+  colIssuesCount: number;
+  totalPts: number;
+  onCreateClick: () => void;
+  children: React.ReactNode;
+}
+
+function BoardColumn({ col, activeTab, colIssuesCount, totalPts, onCreateClick, children }: BoardColumnProps) {
+  const { setNodeRef, isOver } = useDroppable({
+    id: col,
+  });
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={cn(
+        "w-full md:w-72 shrink-0 rounded-2xl border border-slate-200 dark:border-slate-800/80 bg-slate-50/60 dark:bg-slate-900/40 p-3 flex flex-col max-h-full shadow-sm transition-colors duration-200",
+        isOver && "bg-indigo-50/40 dark:bg-indigo-950/10 border-indigo-400/50",
+        activeTab === col ? "flex" : "hidden md:flex"
+      )}
+    >
+      {/* Column Sticky Header */}
+      <div className="flex items-center justify-between mb-3 px-1 sticky top-0 bg-transparent shrink-0 select-none">
+        <div className="flex items-center gap-2">
+          <span className={cn("w-2.5 h-2.5 rounded-full", statusDotColor(col))} />
+          <span className="font-bold text-xs uppercase tracking-wider text-slate-700 dark:text-slate-200">
+            {statusLabel(col)}
+          </span>
+          <span className="text-[11px] font-mono font-bold text-slate-400 px-2 py-0.5 rounded-full bg-slate-200/60 dark:bg-slate-800">
+            {colIssuesCount}
+          </span>
+        </div>
+        <span className="text-[11px] font-mono font-bold text-indigo-400">{totalPts} pts</span>
+      </div>
+
+      {children}
+
+      {/* Add Quick Button */}
+      <button
+        onClick={onCreateClick}
+        className="mt-3 w-full py-2 flex items-center justify-center gap-1.5 rounded-xl text-xs font-semibold text-indigo-500 dark:text-indigo-400 hover:bg-indigo-500/10 dark:hover:bg-indigo-500/10 transition-colors"
+      >
+        <Plus className="w-3.5 h-3.5" />
+        <span>Add task</span>
+      </button>
+    </div>
+  );
+}
 
 const COLUMNS: Status[] = ['backlog', 'todo', 'in-progress', 'in-review', 'done'];
 
@@ -161,27 +213,14 @@ export function SprintBoard() {
             const totalPts = colIssues.reduce((sum, i) => sum + (i.storyPoints ?? 0), 0);
 
             return (
-              <div
+              <BoardColumn
                 key={col}
-                className={cn(
-                  "w-full md:w-72 shrink-0 rounded-2xl border border-slate-200 dark:border-slate-800/80 bg-slate-50/60 dark:bg-slate-900/40 p-3 flex flex-col max-h-full shadow-sm",
-                  activeTab === col ? "flex" : "hidden md:flex"
-                )}
+                col={col}
+                activeTab={activeTab}
+                colIssuesCount={colIssues.length}
+                totalPts={totalPts}
+                onCreateClick={() => setCreateForStatus(col)}
               >
-                {/* Column Sticky Header */}
-                <div className="flex items-center justify-between mb-3 px-1 sticky top-0 bg-transparent shrink-0">
-                  <div className="flex items-center gap-2">
-                    <span className={`w-2.5 h-2.5 rounded-full ${statusDotColor(col)}`} />
-                    <span className="font-bold text-xs uppercase tracking-wider text-slate-700 dark:text-slate-200">
-                      {statusLabel(col)}
-                    </span>
-                    <span className="text-[11px] font-mono font-bold text-slate-400 px-2 py-0.5 rounded-full bg-slate-200/60 dark:bg-slate-800">
-                      {colIssues.length}
-                    </span>
-                  </div>
-                  <span className="text-[11px] font-mono font-bold text-indigo-400">{totalPts} pts</span>
-                </div>
-
                 {/* Sortable Column List */}
                 <SortableContext
                   id={col}
@@ -203,16 +242,7 @@ export function SprintBoard() {
                     )}
                   </div>
                 </SortableContext>
-
-                {/* Add Quick Button */}
-                <button
-                  onClick={() => setCreateForStatus(col)}
-                  className="mt-3 w-full py-2 flex items-center justify-center gap-1.5 rounded-xl text-xs font-semibold text-indigo-500 dark:text-indigo-400 hover:bg-indigo-500/10 dark:hover:bg-indigo-500/10 transition-colors"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Add task</span>
-                </button>
-              </div>
+              </BoardColumn>
             );
           })}
         </div>

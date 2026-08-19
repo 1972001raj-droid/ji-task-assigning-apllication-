@@ -159,3 +159,65 @@ async def add_issue_to_sprint(
 
     return await service.add_issue_to_sprint(sprint_id=sprint_id, issue_id=data.issue_id, user_id=user.id)
 
+
+@router.delete("/issues/{issue_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def remove_issue_from_sprint(
+    issue_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_async_session)
+):
+    service = SprintService(session)
+    assignment = await service.sprint_repo.get_active_assignment(issue_id)
+    if not assignment:
+        raise NotFoundException("SprintIssueAssignment", issue_id)
+
+    sprint = await service.sprint_repo.get(assignment.sprint_id)
+    if sprint:
+        guard = ProjectPermissionGuard(Permission.SPRINT_MANAGE)
+        await guard(project_id=sprint.project_id, user=user, session=session)
+
+    await service.sprint_repo.unassign_issue_from_sprint(issue_id)
+    await session.commit()
+
+
+@router.delete("/{sprint_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_sprint(
+    sprint_id: uuid.UUID,
+    user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_async_session)
+):
+    from sqlalchemy import update
+    from app.db.models.sprint import SprintIssueAssignment
+
+    service = SprintService(session)
+    sprint = await service.sprint_repo.get(sprint_id)
+    if not sprint:
+        raise NotFoundException("Sprint", sprint_id)
+
+    guard = ProjectPermissionGuard(Permission.SPRINT_MANAGE)
+    await guard(project_id=sprint.project_id, user=user, session=session)
+
+    # Deactivate all active assignments for issues in this sprint
+    await session.execute(
+        update(SprintIssueAssignment)
+        .where(SprintIssueAssignment.sprint_id == sprint_id)
+        .values(is_active=False, removed_at=datetime.now(timezone.utc))
+    )
+
+    # Delete the sprint record
+    await service.sprint_repo.delete(sprint_id)
+
+    # Log audit trail
+    audit_repo = AuditRepository(session)
+    await audit_repo.log_audit(
+        action="SPRINT_DELETE",
+        resource_type="sprint",
+        user_id=user.id,
+        project_id=sprint.project_id,
+        resource_id=str(sprint.id),
+        details={"name": sprint.name}
+    )
+
+    await session.commit()
+
+

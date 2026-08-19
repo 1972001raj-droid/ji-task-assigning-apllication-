@@ -127,6 +127,16 @@ class IssueService:
                 return parent_story.parent_issue_id
         return None
 
+    async def get_active_sprint_id(self, issue: Issue) -> Optional[uuid.UUID]:
+        from app.db.models.sprint import SprintIssueAssignment
+        from sqlalchemy import select
+        stmt = select(SprintIssueAssignment.sprint_id).where(
+            SprintIssueAssignment.issue_id == issue.id,
+            SprintIssueAssignment.is_active == True
+        )
+        res = await self.session.execute(stmt)
+        return res.scalars().first()
+
     async def add_acceptance_criteria(self, story_id: uuid.UUID, data: AcceptanceCriteriaCreate, user_id: uuid.UUID) -> AcceptanceCriteria:
         story = await self.issue_repo.get(story_id)
         if not story or story.issue_type != IssueType.STORY:

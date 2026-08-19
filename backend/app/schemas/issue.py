@@ -108,6 +108,7 @@ class IssueResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
     effective_epic_id: Optional[uuid.UUID] = None
+    sprint_id: Optional[uuid.UUID] = None
 
 
 class IssueDetailResponse(IssueResponse):

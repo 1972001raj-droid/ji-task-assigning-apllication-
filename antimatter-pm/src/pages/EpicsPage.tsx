@@ -209,7 +209,7 @@ export function EpicsPage() {
                 </div>
 
                 <div className="flex items-center gap-6 shrink-0">
-                  <span className="text-slate-400">{doneStories}/{linkedStories.length} stories ({progressPercent}%)</span>
+                  <span className="text-slate-400">{doneStories}/{linkedStories.length} <span className="hidden sm:inline">stories</span> ({progressPercent}%)</span>
                   <PriorityBadge priority={epic.priority} size="sm" />
                   {owner && <UserAvatar user={owner} size="xs" />}
                 </div>

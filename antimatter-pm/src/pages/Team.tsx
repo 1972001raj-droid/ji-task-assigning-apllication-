@@ -66,7 +66,7 @@ export function Team() {
         </div>
 
         {/* Role Filters */}
-        <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/60 self-start">
+        <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/60 self-start overflow-x-auto max-w-full no-scrollbar">
           <button
             onClick={() => setRoleFilter('ALL')}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${

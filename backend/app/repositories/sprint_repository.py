@@ -53,3 +53,10 @@ class SprintRepository(BaseRepository[Sprint]):
         )
         res = await self.session.execute(stmt)
         return list(res.scalars().all())
+
+    async def unassign_issue_from_sprint(self, issue_id: uuid.UUID) -> None:
+        await self.session.execute(
+            update(SprintIssueAssignment)
+            .where(SprintIssueAssignment.issue_id == issue_id, SprintIssueAssignment.is_active == True)
+            .values(is_active=False, removed_at=datetime.now(timezone.utc))
+        )

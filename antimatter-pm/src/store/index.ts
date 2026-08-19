@@ -70,7 +70,9 @@ interface AppState {
   
   createSprint: (data: Partial<Sprint>) => Promise<void>;
   updateSprint: (id: string, data: Partial<Sprint>) => Promise<void>;
+  deleteSprint: (id: string) => Promise<void>;
   assignIssueToSprint: (sprintId: string, issueId: string) => Promise<void>;
+  removeIssueFromSprint: (issueId: string) => Promise<void>;
   
   addComment: (issueId: string, body: string) => Promise<void>;
   addAcceptanceCriterion: (issueId: string, text: string) => Promise<void>;
@@ -727,6 +729,20 @@ export const useStore = create<AppState>()((set, get) => ({
     }
   },
 
+  removeIssueFromSprint: async (issueId) => {
+    try {
+      await api.delete(`/sprints/issues/${issueId}`);
+      set(s => ({
+        issues: s.issues.map(i => i.id === issueId ? { ...i, sprintId: undefined } : i)
+      }));
+      toast.success('Removed issue from sprint');
+    } catch (e: any) {
+      const errorDetail = e.response?.data?.detail;
+      const msg = typeof errorDetail === 'string' ? errorDetail : 'Failed to remove issue from sprint';
+      toast.error(msg);
+    }
+  },
+
   deleteIssue: async (id) => {
     try {
       await api.delete(`/issues/${id}`);
@@ -858,6 +874,27 @@ export const useStore = create<AppState>()((set, get) => ({
     } catch (e: any) {
       const errorDetail = e.response?.data?.detail;
       const msg = typeof errorDetail === 'string' ? errorDetail : 'Failed to update sprint';
+      toast.error(msg);
+    }
+  },
+
+  deleteSprint: async (id) => {
+    try {
+      await api.delete(`/sprints/${id}`);
+      set(st => {
+        const nextSprints = st.sprints.filter(s => s.id !== id);
+        const nextActiveId = st.activeSprintId === id ? (nextSprints[0]?.id || '') : st.activeSprintId;
+        const nextIssues = st.issues.map(i => i.sprintId === id ? { ...i, sprintId: undefined } : i);
+        return {
+          sprints: nextSprints,
+          activeSprintId: nextActiveId,
+          issues: nextIssues
+        };
+      });
+      toast.success('Sprint deleted');
+    } catch (e: any) {
+      const errorDetail = e.response?.data?.detail;
+      const msg = typeof errorDetail === 'string' ? errorDetail : 'Failed to delete sprint';
       toast.error(msg);
     }
   },

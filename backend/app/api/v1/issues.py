@@ -56,6 +56,7 @@ async def create_issue(
 
     resp = IssueResponse.model_validate(issue)
     resp.effective_epic_id = await issue_service.get_effective_epic_id(issue)
+    resp.sprint_id = await issue_service.get_active_sprint_id(issue)
     return resp
 
 
@@ -80,6 +81,7 @@ async def get_issue_detail(
 
     resp = IssueDetailResponse.model_validate(issue)
     resp.effective_epic_id = await issue_service.get_effective_epic_id(issue)
+    resp.sprint_id = await issue_service.get_active_sprint_id(issue)
     resp.is_eligible_for_review = elig_review
     resp.is_eligible_for_done = elig_done
     return resp
@@ -122,6 +124,7 @@ async def update_issue(
 
     resp = IssueResponse.model_validate(issue)
     resp.effective_epic_id = await issue_service.get_effective_epic_id(issue)
+    resp.sprint_id = await issue_service.get_active_sprint_id(issue)
     return resp
 
 
@@ -151,6 +154,7 @@ async def transition_issue(
 
     resp = IssueResponse.model_validate(updated_issue)
     resp.effective_epic_id = await issue_service.get_effective_epic_id(updated_issue)
+    resp.sprint_id = await issue_service.get_active_sprint_id(updated_issue)
     return resp
 
 

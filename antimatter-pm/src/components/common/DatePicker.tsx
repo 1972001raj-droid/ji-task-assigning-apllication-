@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Trash2 } from 'lucide-react';
+import { ChevronDown, Trash2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
 interface DatePickerProps {
@@ -45,7 +45,7 @@ export function DatePicker({ value, onChange, className }: DatePickerProps) {
   ];
 
   // Years range
-  const startYear = 2025;
+  const startYear = 2024;
   const years = Array.from({ length: 15 }, (_, i) => String(startYear + i));
 
   // Determine days in selected month/year
@@ -77,7 +77,6 @@ export function DatePicker({ value, onChange, className }: DatePickerProps) {
 
   const handleMonthChange = (val: string) => {
     setMonth(val);
-    // If selected day exceeds the new month's max days, adjust it
     const newMaxDays = getDaysInMonth(val, year);
     let adjustedDay = day;
     if (day && parseInt(day, 10) > newMaxDays) {
@@ -106,55 +105,73 @@ export function DatePicker({ value, onChange, className }: DatePickerProps) {
   };
 
   return (
-    <div className={cn('flex items-center gap-2 w-full', className)}>
+    <div className={cn('flex items-center gap-1.5 w-full', className)}>
       {/* Day Select */}
-      <select
-        value={day}
-        onChange={(e) => handleDayChange(e.target.value)}
-        className="flex-1 h-9 px-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 text-xs font-semibold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 cursor-pointer overflow-y-auto"
-      >
-        <option value="">Day</option>
-        {days.map((d) => (
-          <option key={d} value={d}>
-            {d.padStart(2, '0')}
-          </option>
-        ))}
-      </select>
+      <div className="relative flex-1 min-w-0">
+        <select
+          value={day}
+          onChange={(e) => handleDayChange(e.target.value)}
+          className={cn(
+            "appearance-none pr-5 pl-2 h-8 w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs font-semibold transition-all hover:border-slate-350 dark:hover:border-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 cursor-pointer",
+            day === '' ? "text-slate-400 dark:text-slate-500 font-medium" : "text-slate-800 dark:text-slate-200"
+          )}
+        >
+          <option value="" className="bg-white dark:bg-slate-900 text-slate-400">Day</option>
+          {days.map((d) => (
+            <option key={d} value={d} className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200">
+              {d}
+            </option>
+          ))}
+        </select>
+        <ChevronDown className="pointer-events-none absolute right-1.5 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400 dark:text-slate-500" />
+      </div>
 
       {/* Month Select */}
-      <select
-        value={month}
-        onChange={(e) => handleMonthChange(e.target.value)}
-        className="flex-[1.5] h-9 px-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 text-xs font-semibold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 cursor-pointer"
-      >
-        <option value="">Month</option>
-        {monthNames.map((m) => (
-          <option key={m.value} value={m.value}>
-            {m.label}
-          </option>
-        ))}
-      </select>
+      <div className="relative flex-[1.3] min-w-0">
+        <select
+          value={month}
+          onChange={(e) => handleMonthChange(e.target.value)}
+          className={cn(
+            "appearance-none pr-5 pl-2 h-8 w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs font-semibold transition-all hover:border-slate-350 dark:hover:border-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 cursor-pointer",
+            month === '' ? "text-slate-400 dark:text-slate-500 font-medium" : "text-slate-800 dark:text-slate-200"
+          )}
+        >
+          <option value="" className="bg-white dark:bg-slate-900 text-slate-400">Month</option>
+          {monthNames.map((m) => (
+            <option key={m.value} value={m.value} className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200">
+              {m.label}
+            </option>
+          ))}
+        </select>
+        <ChevronDown className="pointer-events-none absolute right-1.5 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400 dark:text-slate-500" />
+      </div>
 
       {/* Year Select */}
-      <select
-        value={year}
-        onChange={(e) => handleYearChange(e.target.value)}
-        className="flex-[1.2] h-9 px-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 text-xs font-semibold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 cursor-pointer"
-      >
-        <option value="">Year</option>
-        {years.map((y) => (
-          <option key={y} value={y}>
-            {y}
-          </option>
-        ))}
-      </select>
+      <div className="relative flex-[1.2] min-w-0">
+        <select
+          value={year}
+          onChange={(e) => handleYearChange(e.target.value)}
+          className={cn(
+            "appearance-none pr-5 pl-2 h-8 w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs font-semibold transition-all hover:border-slate-350 dark:hover:border-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 cursor-pointer",
+            year === '' ? "text-slate-400 dark:text-slate-500 font-medium" : "text-slate-800 dark:text-slate-200"
+          )}
+        >
+          <option value="" className="bg-white dark:bg-slate-900 text-slate-400">Year</option>
+          {years.map((y) => (
+            <option key={y} value={y} className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200">
+              {y}
+            </option>
+          ))}
+        </select>
+        <ChevronDown className="pointer-events-none absolute right-1.5 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400 dark:text-slate-500" />
+      </div>
 
       {/* Clear Button */}
       {(day || month || year) && (
         <button
           type="button"
           onClick={handleClear}
-          className="p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/50 text-rose-500 hover:text-rose-600 transition-colors shrink-0"
+          className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-rose-500 hover:text-rose-600 transition-all shrink-0 hover:scale-105 active:scale-95 shadow-sm"
           title="Clear date"
         >
           <Trash2 className="w-3.5 h-3.5" />

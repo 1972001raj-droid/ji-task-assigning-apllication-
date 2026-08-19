@@ -46,6 +46,7 @@ async def search_issues(
     for iss in issues:
         resp = IssueResponse.model_validate(iss)
         resp.effective_epic_id = await service.get_effective_epic_id(iss)
+        resp.sprint_id = await service.get_active_sprint_id(iss)
         items.append(resp)
 
     return {

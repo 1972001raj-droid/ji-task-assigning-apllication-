@@ -39,7 +39,7 @@ export function RoadmapPage() {
       </div>
 
       <div className="card p-6 space-y-6">
-        <div className="grid grid-cols-4 gap-4 pb-3 border-b border-slate-100 dark:border-slate-800 text-xs font-bold text-slate-400 uppercase tracking-wider">
+        <div className="hidden md:grid grid-cols-4 gap-4 pb-3 border-b border-slate-100 dark:border-slate-800 text-xs font-bold text-slate-400 uppercase tracking-wider">
           <div>Epic</div>
           <div>Q3 2026 (Jul-Sep)</div>
           <div>Q4 2026 (Oct-Dec)</div>
@@ -56,7 +56,7 @@ export function RoadmapPage() {
               <div
                 key={epic.id}
                 onClick={() => handleOpenEpic(epic.id)}
-                className="grid grid-cols-4 gap-4 items-center cursor-pointer hover:bg-slate-50/50 dark:hover:bg-slate-800/40 p-2 rounded-xl transition-colors"
+                className="flex flex-col md:grid md:grid-cols-4 gap-3 md:gap-4 items-stretch md:items-center cursor-pointer hover:bg-slate-50/50 dark:hover:bg-slate-800/40 p-2 rounded-xl transition-colors"
               >
                 <div className="flex items-center gap-2.5 min-w-0">
                   <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: epic.color + '1a', color: epic.color }}>
@@ -70,7 +70,7 @@ export function RoadmapPage() {
                   </div>
                 </div>
 
-                <div className="col-span-3">
+                <div className="md:col-span-3">
                   <div
                     className="h-9 rounded-xl px-3 flex items-center justify-between text-xs font-semibold text-white shadow-sm transition-all hover:scale-[1.01]"
                     style={{ backgroundColor: epic.color, width: `${Math.max(30, progress + 20)}%` }}

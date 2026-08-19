@@ -74,7 +74,7 @@ export function Dashboard() {
       )}
 
       {/* Header */}
-      <div className="flex items-start justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
             Welcome back, {currentUser?.name ? currentUser.name.split(' ')[0] : 'User'} 👋
@@ -162,7 +162,7 @@ export function Dashboard() {
               {/* Status distribution */}
               <div>
                 <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-3">Status distribution</p>
-                <div className="grid grid-cols-5 gap-2">
+                <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
                   {COLUMNS.map(col => {
                     const count = sprintIssues.filter(i => i.status === col).length;
                     return (

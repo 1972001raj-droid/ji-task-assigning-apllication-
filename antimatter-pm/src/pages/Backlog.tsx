@@ -364,7 +364,7 @@ function IssueRow({ issueId, users, isSelected, onSelect, onClick, onStatusChang
           value={issue.status}
           onClick={(e) => e.stopPropagation()}
           onChange={(e) => onStatusChange(e.target.value as Status, e)}
-          className="h-7 px-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 text-[11px] font-semibold capitalize focus:outline-none cursor-pointer"
+          className="hidden sm:inline-block h-7 px-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 text-[11px] font-semibold capitalize focus:outline-none cursor-pointer"
         >
           <option value="backlog">Backlog</option>
           <option value="todo">To Do</option>
