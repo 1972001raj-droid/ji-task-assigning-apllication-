@@ -2,7 +2,9 @@ import axios from 'axios';
 
 // Create an Axios instance
 export const api = axios.create({
-  baseURL: 'http://localhost:8000/api/v1',
+  // Vite forwards this same-origin path to FastAPI in development. This also
+  // makes a single tunnel URL work for both the UI and the API.
+  baseURL: '/api/v1',
   withCredentials: true, // Crucial for sending/receiving session cookies
   headers: {
     'Content-Type': 'application/json',

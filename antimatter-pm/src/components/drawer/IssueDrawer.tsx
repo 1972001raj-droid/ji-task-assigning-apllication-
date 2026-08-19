@@ -691,7 +691,7 @@ export function IssueDrawer({ issue: propIssue, onClose, onSelectIssue }: Props)
                 className="w-full h-9 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 text-xs font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 cursor-pointer"
               >
                 <option value="">Unassigned</option>
-                {(assignableUsers.length > 0 ? assignableUsers : users.filter(u => !u.isSuperuser && u.role !== 'ADMIN')).map(u => (
+                {(((assignableUsers && assignableUsers.length > 0) ? assignableUsers : (users || []).filter(u => !u.isSuperuser && u.role !== 'ADMIN'))).map(u => (
                   <option key={u.id} value={u.id}>
                     {u.name} ({getUserRoleLabel(u)})
                   </option>

@@ -144,9 +144,14 @@ export function CreateUserDialog({ open, onClose, onCreated }: Props) {
                 onChange={(e) => setRole(e.target.value as any)}
                 className="w-full h-10 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/40 cursor-pointer font-medium"
               >
-                {isAdmin && <option value="MANAGER">👔 Manager</option>}
-                <option value="DEVELOPER">👨‍💻 Developer</option>
-                <option value="TESTER">🧪 Tester</option>
+                {isAdmin ? (
+                  <option value="MANAGER">👔 Manager</option>
+                ) : (
+                  <>
+                    <option value="DEVELOPER">👨‍💻 Developer</option>
+                    <option value="TESTER">🧪 Tester</option>
+                  </>
+                )}
               </select>
             </div>
 

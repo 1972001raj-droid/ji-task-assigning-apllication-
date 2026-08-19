@@ -345,7 +345,7 @@ export function CreateIssueDialog({ open, onClose, defaults }: Props) {
                   className="w-full h-10 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
                 >
                   <option value="">Unassigned</option>
-                  {(assignableUsers.length > 0 ? assignableUsers : users.filter(u => !u.isSuperuser && u.role !== 'ADMIN')).map((u) => (
+                  {(((assignableUsers && assignableUsers.length > 0) ? assignableUsers : (users || []).filter(u => !u.isSuperuser && u.role !== 'ADMIN'))).map((u) => (
                     <option key={u.id} value={u.id}>
                       {u.name} ({getUserRoleLabel(u)})
                     </option>

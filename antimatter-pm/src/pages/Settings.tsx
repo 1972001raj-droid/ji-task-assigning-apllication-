@@ -71,20 +71,48 @@ export function Settings() {
           </p>
 
           <div className="divide-y divide-slate-100 dark:divide-slate-800">
-            {users.slice(0, 10).map((u) => (
-              <div key={u.id} className="py-2 flex items-center justify-between text-xs">
-                <div>
-                  <span className="font-semibold text-slate-800 dark:text-slate-200">{u.name}</span>
-                  <span className="text-slate-400 ml-2">({u.email})</span>
+            {users
+              .filter(u => {
+                if (isAdmin) {
+                  return u.isSuperuser || u.role?.toUpperCase().includes('ADMIN') || u.role?.toUpperCase().includes('MANAGER') || u.roles?.some(r => r.toUpperCase().includes('MANAGER'));
+                }
+                return !u.isSuperuser && !u.role?.toUpperCase().includes('ADMIN') && !u.role?.toUpperCase().includes('MANAGER');
+              })
+              .map((u) => (
+                <div key={u.id} className="py-2.5 flex items-center justify-between text-xs">
+                  <div>
+                    <span className="font-semibold text-slate-800 dark:text-slate-200">{u.name}</span>
+                    <span className="text-slate-400 ml-2">({u.email})</span>
+                  </div>
+                  <span className="px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 font-mono text-[10px] font-semibold border border-slate-700">
+                    {u.role || (u.isSuperuser ? 'ADMIN' : 'DEVELOPER')}
+                  </span>
                 </div>
-                <span className="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 font-mono text-[10px]">
-                  {u.role || 'Member'}
-                </span>
-              </div>
-            ))}
+              ))}
           </div>
         </div>
       )}
+
+      {/* Personal Profile & Security (For all users including Developer/Tester) */}
+      <div className="card p-6 space-y-4">
+        <h2 className="font-bold text-slate-900 dark:text-white text-base">My Profile & Active Sessions</h2>
+        <div className="space-y-3 text-xs">
+          <div className="flex items-center justify-between py-1.5 border-b border-slate-100 dark:border-slate-800">
+            <span className="text-slate-500 dark:text-slate-400">Account Name</span>
+            <span className="font-semibold text-slate-800 dark:text-slate-200">{currentUser?.name}</span>
+          </div>
+          <div className="flex items-center justify-between py-1.5 border-b border-slate-100 dark:border-slate-800">
+            <span className="text-slate-500 dark:text-slate-400">Email Address</span>
+            <span className="font-semibold text-slate-800 dark:text-slate-200">{currentUser?.email}</span>
+          </div>
+          <div className="flex items-center justify-between py-1.5">
+            <span className="text-slate-500 dark:text-slate-400">Active Session Status</span>
+            <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold uppercase tracking-wider border border-emerald-500/20">
+              Authenticated
+            </span>
+          </div>
+        </div>
+      </div>
 
       {/* Theme */}
       <div className="card p-6 space-y-4">

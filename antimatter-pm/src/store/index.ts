@@ -69,6 +69,7 @@ interface AppState {
   deleteEpic: (id: string) => Promise<void>;
   
   createSprint: (data: Partial<Sprint>) => Promise<void>;
+  updateSprint: (id: string, data: Partial<Sprint>) => Promise<void>;
   assignIssueToSprint: (sprintId: string, issueId: string) => Promise<void>;
   
   addComment: (issueId: string, body: string) => Promise<void>;
@@ -301,14 +302,26 @@ export const useStore = create<AppState>()((set, get) => ({
 
       // Fetch Sprints
       const sprintsRes = await api.get(`/sprints?project_id=${projectId}`);
-      const sprints: Sprint[] = sprintsRes.data.map((s: any) => ({
-        id: s.id,
-        name: s.name,
-        goal: s.goal || '',
-        startDate: s.start_date,
-        endDate: s.due_date,
-        status: mapBackendStatusToUI(s.status) === 'in-progress' ? 'active' : 'planned',
-      }));
+      const sprints: Sprint[] = sprintsRes.data.map((s: any) => {
+        const rawStatus = (s.effective_status || s.status || '').toLowerCase();
+        let uiStatus: 'active' | 'planned' | 'completed' | 'overdue' = 'planned';
+        if (rawStatus === 'active') uiStatus = 'active';
+        else if (rawStatus === 'completed') uiStatus = 'completed';
+        else if (rawStatus === 'overdue') uiStatus = 'overdue';
+
+        return {
+          id: s.id,
+          name: s.name,
+          goal: s.goal || '',
+          startDate: s.start_date,
+          endDate: s.due_date,
+          status: uiStatus,
+          effectiveStatus: uiStatus,
+          isOverdue: !!s.is_overdue,
+          daysRemaining: s.days_remaining,
+          dayCounterText: s.day_counter_text,
+        };
+      });
 
       set({
         issues: mapped,
@@ -780,19 +793,71 @@ export const useStore = create<AppState>()((set, get) => ({
         start_date: data.startDate || new Date().toISOString(),
         due_date: data.endDate || new Date(Date.now() + 14 * 86400000).toISOString()
       });
+      const s = res.data;
+      const rawStatus = (s.effective_status || s.status || '').toLowerCase();
+      let uiStatus: 'active' | 'planned' | 'completed' | 'overdue' = 'planned';
+      if (rawStatus === 'active') uiStatus = 'active';
+      else if (rawStatus === 'completed') uiStatus = 'completed';
+      else if (rawStatus === 'overdue') uiStatus = 'overdue';
+
       const newSprint: Sprint = {
-        id: res.data.id,
-        name: res.data.name,
-        goal: res.data.goal,
-        startDate: res.data.start_date,
-        endDate: res.data.due_date,
-        status: res.data.status?.toLowerCase() || 'planned',
+        id: s.id,
+        name: s.name,
+        goal: s.goal || '',
+        startDate: s.start_date,
+        endDate: s.due_date,
+        status: uiStatus,
+        effectiveStatus: uiStatus,
+        isOverdue: !!s.is_overdue,
+        daysRemaining: s.days_remaining,
+        dayCounterText: s.day_counter_text,
       };
-      set(s => ({ sprints: [...s.sprints, newSprint] }));
+      set(st => ({ sprints: [...st.sprints, newSprint] }));
       toast.success(`Sprint "${newSprint.name}" created`);
     } catch (e: any) {
       const errorDetail = e.response?.data?.detail;
       const msg = typeof errorDetail === 'string' ? errorDetail : 'Failed to create sprint';
+      toast.error(msg);
+    }
+  },
+
+  updateSprint: async (id, data) => {
+    try {
+      const payload: any = {};
+      if (data.name !== undefined) payload.name = data.name;
+      if (data.goal !== undefined) payload.goal = data.goal;
+      if (data.startDate !== undefined) payload.start_date = data.startDate;
+      if (data.endDate !== undefined) payload.due_date = data.endDate;
+      if (data.status !== undefined) payload.status = data.status.toUpperCase();
+
+      const res = await api.patch(`/sprints/${id}`, payload);
+      const s = res.data;
+      const rawStatus = (s.effective_status || s.status || '').toLowerCase();
+      let uiStatus: 'active' | 'planned' | 'completed' | 'overdue' = 'planned';
+      if (rawStatus === 'active') uiStatus = 'active';
+      else if (rawStatus === 'completed') uiStatus = 'completed';
+      else if (rawStatus === 'overdue') uiStatus = 'overdue';
+
+      const updatedSprint: Sprint = {
+        id: s.id,
+        name: s.name,
+        goal: s.goal || '',
+        startDate: s.start_date,
+        endDate: s.due_date,
+        status: uiStatus,
+        effectiveStatus: uiStatus,
+        isOverdue: !!s.is_overdue,
+        daysRemaining: s.days_remaining,
+        dayCounterText: s.day_counter_text,
+      };
+
+      set(st => ({
+        sprints: st.sprints.map(sp => (sp.id === id ? updatedSprint : sp))
+      }));
+      toast.success(`Sprint "${updatedSprint.name}" updated`);
+    } catch (e: any) {
+      const errorDetail = e.response?.data?.detail;
+      const msg = typeof errorDetail === 'string' ? errorDetail : 'Failed to update sprint';
       toast.error(msg);
     }
   },
