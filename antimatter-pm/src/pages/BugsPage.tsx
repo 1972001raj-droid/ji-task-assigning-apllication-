@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { CheckSquare, Plus, Search, LayoutGrid, List, Bug, BookOpen, Layers } from 'lucide-react';
+import { Bug, Plus, Search, LayoutGrid, List, BookOpen, Layers } from 'lucide-react';
 import { useStore } from '../store';
 import { IssueCard } from '../components/kanban/IssueCard';
 import { IssueDrawer } from '../components/drawer/IssueDrawer';
@@ -10,34 +10,32 @@ import { UserAvatar } from '../components/common/UserAvatar';
 import { cn, isUuidOrHash, statusLabel, statusDotColor, formatDate } from '../lib/utils';
 import type { Issue } from '../types';
 
-export function TasksPage() {
+export function BugsPage() {
   const { issues, epics, users, currentProject } = useStore();
   const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
-  const [typeTab, setTypeTab] = useState<'all' | 'task' | 'bug'>('all');
   const [query, setQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [priorityFilter, setPriorityFilter] = useState('all');
 
-  const tasksAndBugs = useMemo(() => {
-    return issues.filter((i) => i.type === 'task' || i.type === 'bug');
+  const bugs = useMemo(() => {
+    return issues.filter((i) => i.type === 'bug');
   }, [issues]);
 
   const filtered = useMemo(() => {
-    return tasksAndBugs.filter((issue) => {
-      if (typeTab !== 'all' && issue.type !== typeTab) return false;
-      if (query && !issue.title.toLowerCase().includes(query.toLowerCase()) && !issue.key.toLowerCase().includes(query.toLowerCase())) {
+    return bugs.filter((bug) => {
+      if (query && !bug.title.toLowerCase().includes(query.toLowerCase()) && !bug.key.toLowerCase().includes(query.toLowerCase())) {
         return false;
       }
-      if (statusFilter !== 'all' && issue.status !== statusFilter) return false;
-      if (priorityFilter !== 'all' && issue.priority !== priorityFilter) return false;
+      if (statusFilter !== 'all' && bug.status !== statusFilter) return false;
+      if (priorityFilter !== 'all' && bug.priority !== priorityFilter) return false;
       return true;
     });
-  }, [tasksAndBugs, typeTab, query, statusFilter, priorityFilter]);
+  }, [bugs, query, statusFilter, priorityFilter]);
 
-  const taskCount = useMemo(() => tasksAndBugs.filter((i) => i.type === 'task').length, [tasksAndBugs]);
-  const bugCount = useMemo(() => tasksAndBugs.filter((i) => i.type === 'bug').length, [tasksAndBugs]);
+  const openCount = useMemo(() => bugs.filter((b) => b.status !== 'done').length, [bugs]);
+  const urgentCount = useMemo(() => bugs.filter((b) => b.priority === 'urgent' && b.status !== 'done').length, [bugs]);
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12">
@@ -45,16 +43,16 @@ export function TasksPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <CheckSquare className="w-6 h-6 text-blue-500" />
-            <span>Tasks &amp; Bugs</span>
+            <Bug className="w-6 h-6 text-rose-500" />
+            <span>Bug Reports</span>
             {currentProject && (
-              <span className="text-xs px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-500 dark:text-blue-400 font-mono font-bold border border-blue-500/20">
+              <span className="text-xs px-2.5 py-0.5 rounded-full bg-rose-500/10 text-rose-500 dark:text-rose-400 font-mono font-bold border border-rose-500/20">
                 {currentProject.key}
               </span>
             )}
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            {filtered.length} work item{filtered.length === 1 ? '' : 's'} ({taskCount} tasks, {bugCount} bugs).
+            {filtered.length} bug report{filtered.length === 1 ? '' : 's'} ({openCount} open{urgentCount > 0 ? `, ${urgentCount} urgent` : ''}).
           </p>
         </div>
 
@@ -66,7 +64,7 @@ export function TasksPage() {
               className={cn(
                 'p-1.5 rounded-lg transition-colors',
                 viewMode === 'list'
-                  ? 'bg-white dark:bg-slate-700 text-blue-500 dark:text-blue-400 shadow-sm'
+                  ? 'bg-white dark:bg-slate-700 text-rose-500 dark:text-rose-400 shadow-sm'
                   : 'text-slate-400 hover:text-slate-200'
               )}
               title="Table View"
@@ -78,7 +76,7 @@ export function TasksPage() {
               className={cn(
                 'p-1.5 rounded-lg transition-colors',
                 viewMode === 'grid'
-                  ? 'bg-white dark:bg-slate-700 text-blue-500 dark:text-blue-400 shadow-sm'
+                  ? 'bg-white dark:bg-slate-700 text-rose-500 dark:text-rose-400 shadow-sm'
                   : 'text-slate-400 hover:text-slate-200'
               )}
               title="Card Grid View"
@@ -89,100 +87,58 @@ export function TasksPage() {
 
           <button
             onClick={() => setCreateDialogOpen(true)}
-            className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-md shadow-blue-600/25 transition-all flex items-center gap-1.5"
+            className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold shadow-md shadow-rose-600/25 transition-all flex items-center gap-1.5"
           >
             <Plus className="w-4 h-4 stroke-[2.5]" />
-            <span>Create Task</span>
+            <span>Report Bug</span>
           </button>
         </div>
       </div>
 
-      {/* Tabs & Filter Toolbar */}
-      <div className="space-y-3">
-        {/* Type Tabs */}
-        <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
-          <button
-            onClick={() => setTypeTab('all')}
-            className={cn(
-              'px-3 py-1.5 rounded-lg text-xs font-semibold transition-all',
-              typeTab === 'all'
-                ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-sm'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-            )}
-          >
-            All Items ({tasksAndBugs.length})
-          </button>
-          <button
-            onClick={() => setTypeTab('task')}
-            className={cn(
-              'px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5',
-              typeTab === 'task'
-                ? 'bg-blue-600 text-white shadow-sm'
-                : 'text-slate-600 dark:text-slate-400 hover:text-blue-500'
-            )}
-          >
-            <CheckSquare className="w-3.5 h-3.5" />
-            <span>Tasks ({taskCount})</span>
-          </button>
-          <button
-            onClick={() => setTypeTab('bug')}
-            className={cn(
-              'px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5',
-              typeTab === 'bug'
-                ? 'bg-rose-600 text-white shadow-sm'
-                : 'text-slate-600 dark:text-slate-400 hover:text-rose-500'
-            )}
-          >
-            <Bug className="w-3.5 h-3.5" />
-            <span>Bugs ({bugCount})</span>
-          </button>
+      {/* Filter Toolbar */}
+      <div className="card p-4 flex flex-wrap items-center gap-3">
+        <div className="relative flex-1 min-w-[200px]">
+          <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Search bugs by title or key..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="input pl-9 text-xs"
+          />
         </div>
 
-        {/* Search & Filters */}
-        <div className="card p-4 flex flex-wrap items-center gap-3">
-          <div className="relative flex-1 min-w-[200px]">
-            <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Search tasks and bugs by title or key..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              className="input pl-9 text-xs"
-            />
-          </div>
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="input text-xs w-auto"
+        >
+          <option value="all">All Statuses</option>
+          <option value="backlog">Backlog</option>
+          <option value="todo">To Do</option>
+          <option value="in-progress">In Progress</option>
+          <option value="in-review">In Review</option>
+          <option value="done">Resolved (Done)</option>
+        </select>
 
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="input text-xs w-auto"
-          >
-            <option value="all">All Statuses</option>
-            <option value="backlog">Backlog</option>
-            <option value="todo">To Do</option>
-            <option value="in-progress">In Progress</option>
-            <option value="in-review">In Review</option>
-            <option value="done">Done</option>
-          </select>
-
-          <select
-            value={priorityFilter}
-            onChange={(e) => setPriorityFilter(e.target.value)}
-            className="input text-xs w-auto"
-          >
-            <option value="all">All Priorities</option>
-            <option value="urgent">Urgent</option>
-            <option value="high">High</option>
-            <option value="medium">Medium</option>
-            <option value="low">Low</option>
-          </select>
-        </div>
+        <select
+          value={priorityFilter}
+          onChange={(e) => setPriorityFilter(e.target.value)}
+          className="input text-xs w-auto"
+        >
+          <option value="all">All Priorities</option>
+          <option value="urgent">Urgent</option>
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select>
       </div>
 
       {/* Content View */}
       {viewMode === 'grid' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filtered.map((item) => (
-            <IssueCard key={item.id} issue={item} onClick={() => setSelectedIssue(item)} />
+          {filtered.map((bug) => (
+            <IssueCard key={bug.id} issue={bug} onClick={() => setSelectedIssue(bug)} />
           ))}
         </div>
       ) : (
@@ -194,39 +150,39 @@ export function TasksPage() {
                   <th className="py-3 px-4 w-28">Key</th>
                   <th className="py-3 px-4">Title</th>
                   <th className="py-3 px-4 w-44">Parent Story / Epic</th>
-                  <th className="py-3 px-4 w-24">Priority</th>
+                  <th className="py-3 px-4 w-24">Severity</th>
                   <th className="py-3 px-4 w-28">Status</th>
                   <th className="py-3 px-4 w-28">Due Date</th>
                   <th className="py-3 px-4 w-24">Assignee</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
-                {filtered.map((item) => {
-                  const parentStory = issues.find((i) => i.id === item.parentId);
-                  const parentEpicId = item.epicId || (parentStory ? parentStory.epicId || parentStory.parentId : undefined);
+                {filtered.map((bug) => {
+                  const parentStory = issues.find((i) => i.id === bug.parentId);
+                  const parentEpicId = bug.epicId || (parentStory ? parentStory.epicId || parentStory.parentId : undefined);
                   const parentEpic = epics.find((e) => e.id === parentEpicId);
-                  const assignee = users.find((u) => u.id === item.assigneeId);
+                  const assignee = users.find((u) => u.id === bug.assigneeId);
 
                   return (
                     <tr
-                      key={item.id}
-                      onClick={() => setSelectedIssue(item)}
+                      key={bug.id}
+                      onClick={() => setSelectedIssue(bug)}
                       className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group"
                     >
                       <td className="py-3 px-4">
                         <div className="flex items-center gap-2">
-                          <IssueTypeIcon type={item.type} />
-                          {!isUuidOrHash(item.key) && (
+                          <IssueTypeIcon type={bug.type} />
+                          {!isUuidOrHash(bug.key) && (
                             <span className="font-mono text-slate-500 dark:text-slate-400 font-semibold">
-                              {item.key}
+                              {bug.key}
                             </span>
                           )}
                         </div>
                       </td>
 
                       <td className="py-3 px-4">
-                        <span className="font-semibold text-slate-900 dark:text-slate-100 group-hover:text-blue-500 transition-colors">
-                          {item.title}
+                        <span className="font-semibold text-slate-900 dark:text-slate-100 group-hover:text-rose-500 transition-colors">
+                          {bug.title}
                         </span>
                       </td>
 
@@ -255,22 +211,22 @@ export function TasksPage() {
                       </td>
 
                       <td className="py-3 px-4">
-                        <PriorityBadge priority={item.priority} />
+                        <PriorityBadge priority={bug.priority} />
                       </td>
 
                       <td className="py-3 px-4">
                         <div className="flex items-center gap-1.5">
-                          <span className={cn('w-2 h-2 rounded-full', statusDotColor(item.status))} />
+                          <span className={cn('w-2 h-2 rounded-full', statusDotColor(bug.status))} />
                           <span className="capitalize font-medium text-slate-700 dark:text-slate-300">
-                            {statusLabel(item.status)}
+                            {statusLabel(bug.status)}
                           </span>
                         </div>
                       </td>
 
                       <td className="py-3 px-4">
-                        {item.dueDate ? (
+                        {bug.dueDate ? (
                           <span className="text-slate-600 dark:text-slate-400 text-[11px]">
-                            {formatDate(item.dueDate)}
+                            {formatDate(bug.dueDate)}
                           </span>
                         ) : (
                           <span className="text-slate-400 text-[11px]">—</span>
@@ -299,20 +255,20 @@ export function TasksPage() {
       {/* Empty State */}
       {filtered.length === 0 && (
         <div className="card p-12 flex flex-col items-center justify-center text-center space-y-3">
-          <CheckSquare className="w-8 h-8 text-slate-300 dark:text-slate-600" />
+          <Bug className="w-8 h-8 text-slate-300 dark:text-slate-600" />
           <div className="space-y-1">
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-white">No tasks or bugs found</h3>
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-white">No bug reports found</h3>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              {query || statusFilter !== 'all' || priorityFilter !== 'all' || typeTab !== 'all'
+              {query || statusFilter !== 'all' || priorityFilter !== 'all'
                 ? 'Try adjusting your search query or filters.'
-                : 'Create your first task to start assigning work to developers and testers.'}
+                : 'No bugs have been logged. Click below to report a new bug issue.'}
             </p>
           </div>
           <button
             onClick={() => setCreateDialogOpen(true)}
-            className="btn-primary text-xs gap-1.5 mt-2"
+            className="btn-primary text-xs gap-1.5 mt-2 bg-rose-600 hover:bg-rose-500"
           >
-            <Plus className="w-3.5 h-3.5" /> Create Task
+            <Plus className="w-3.5 h-3.5" /> Report Bug
           </button>
         </div>
       )}
@@ -321,7 +277,7 @@ export function TasksPage() {
       <CreateIssueDialog
         open={createDialogOpen}
         onClose={() => setCreateDialogOpen(false)}
-        defaults={{ type: 'task' }}
+        defaults={{ type: 'bug' }}
       />
     </div>
   );

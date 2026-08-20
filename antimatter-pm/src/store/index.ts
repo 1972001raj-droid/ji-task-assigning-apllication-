@@ -41,6 +41,7 @@ interface AppState {
   createProject: (data: { org_id?: string; name: string; key: string; description?: string }) => Promise<Project>;
   deleteProject: (projectId: string) => Promise<void>;
   provisionUser: (data: { username: string; email: string; password: string; full_name?: string; role: string; org_id: string; project_id?: string }) => Promise<User>;
+  deleteUser: (userId: string) => Promise<void>;
   fetchAssignableUsers: (projectId: string) => Promise<User[]>;
   fetchProvisionedUsers: (orgId?: string, projectId?: string) => Promise<User[]>;
 
@@ -166,7 +167,6 @@ export const useStore = create<AppState>()((set, get) => ({
     try {
       const meRes = await api.get('/users/me');
       const me = meRes.data;
-      console.log('[Store] /users/me response:', JSON.stringify(me));
 
       const currentUser: User = {
         id: me.id,
@@ -178,7 +178,6 @@ export const useStore = create<AppState>()((set, get) => ({
         roles: me.roles || [],
         isSuperuser: me.is_superuser || false,
       };
-      console.log('[Store] currentUser built:', JSON.stringify(currentUser));
 
       let allUsers: User[] = [currentUser];
       try {
@@ -410,6 +409,18 @@ export const useStore = create<AppState>()((set, get) => ({
       return list;
     } catch (e) {
       return [];
+    }
+  },
+
+  deleteUser: async (userId: string) => {
+    try {
+      await api.delete(`/admin/users/${userId}`);
+      set(s => ({ users: s.users.filter(u => u.id !== userId) }));
+      toast.success('User account deleted successfully');
+    } catch (e: any) {
+      const msg = e.response?.data?.detail || 'Failed to delete user';
+      toast.error(typeof msg === 'string' ? msg : 'Failed to delete user');
+      throw e;
     }
   },
 

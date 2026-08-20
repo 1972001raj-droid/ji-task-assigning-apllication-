@@ -2,7 +2,7 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, ListTodo, KanbanSquare, Zap, Calendar, Map,
-  Layers, BookOpen, CheckSquare, BarChart3, Users, Settings,
+  Layers, BookOpen, CheckSquare, Bug, BarChart3, Users, Settings,
   ChevronLeft, Plus
 } from 'lucide-react';
 import { useStore } from '../../store';
@@ -24,6 +24,7 @@ const NAV_ITEMS = [
   { to: '/epics',     icon: Layers,          label: 'Epics' },
   { to: '/stories',   icon: BookOpen,        label: 'User Stories' },
   { to: '/tasks',     icon: CheckSquare,     label: 'Tasks' },
+  { to: '/bugs',      icon: Bug,             label: 'Bugs' },
   { to: '/reports',   icon: BarChart3,       label: 'Reports' },
   { to: '/team',      icon: Users,           label: 'Team' },
   { to: '/settings',  icon: Settings,        label: 'Settings' },
@@ -57,7 +58,6 @@ export function AppSidebar() {
 
   // canDeleteProject checks isSuperuser, role, and roles — same criteria as canCreateProject
   const canCreateProject = canDeleteProject(currentUser);
-  console.log('AppSidebar: canCreateProject', canCreateProject);
 
   const [createIssueOpen, setCreateIssueOpen] = useState(false);
   const [createProjectOpen, setCreateProjectOpen] = useState(false);

@@ -28,6 +28,9 @@ export interface User {
   roles?: string[];
   isSuperuser?: boolean;
   avatarColor: string;
+  status?: 'ACTIVE' | 'INVITED' | 'SUSPENDED' | 'DEACTIVATED';
+  mustChangePassword?: boolean;
+  lastLoginAt?: string;
 }
 
 

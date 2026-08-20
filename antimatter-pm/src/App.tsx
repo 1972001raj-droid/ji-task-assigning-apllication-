@@ -11,9 +11,13 @@ import { Settings } from './pages/Settings';
 import { SprintsPage } from './pages/SprintsPage';
 import { UserStoriesPage } from './pages/UserStoriesPage';
 import { TasksPage } from './pages/TasksPage';
+import { BugsPage } from './pages/BugsPage';
 import { TimelinePage } from './pages/TimelinePage';
 import { RoadmapPage } from './pages/RoadmapPage';
 import { Login } from './pages/Login';
+import { ActivateAccount } from './pages/ActivateAccount';
+import { ForgotPassword } from './pages/ForgotPassword';
+import { ResetPassword } from './pages/ResetPassword';
 import { useStore } from './store';
 import { Loader2 } from 'lucide-react';
 
@@ -60,6 +64,9 @@ export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/activate" element={<ActivateAccount />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
       <Route
         path="/"
         element={
@@ -78,6 +85,7 @@ export default function App() {
         <Route path="epics" element={<EpicsPage />} />
         <Route path="stories" element={<UserStoriesPage />} />
         <Route path="tasks" element={<TasksPage />} />
+        <Route path="bugs" element={<BugsPage />} />
         <Route path="reports" element={<Reports />} />
         <Route path="team" element={<Team />} />
         <Route path="settings" element={<Settings />} />

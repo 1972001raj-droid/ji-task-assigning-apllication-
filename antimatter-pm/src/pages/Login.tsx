@@ -1,19 +1,26 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 import { api } from '../lib/api';
 import { useStore } from '../store';
-import { FlipText } from '../components/common/FlipText';
 import { GravityStarsBackground } from '../components/common/GravityStarsBackground';
 import iattLogo from '../assets/IATT Logo.jpeg';
 
 export function Login() {
+  const { currentUserId } = useStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
   const navigate = useNavigate();
+
+  // If already logged in, prevent landing on /login and redirect to /dashboard
+  useEffect(() => {
+    if (currentUserId) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [currentUserId, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,7 +35,7 @@ export function Login() {
       }
       await useStore.getState().fetchInitialData();
       toast.success('Logged in successfully');
-      navigate('/dashboard');
+      navigate('/dashboard', { replace: true });
     } catch (error: any) {
       toast.error(error.response?.data?.error?.message || 'Login failed');
     } finally {
@@ -119,14 +126,12 @@ export function Login() {
             />
           </div>
 
-          {/* White FlipText title */}
+          {/* Title */}
           <div>
-            <h1 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 700 }}>
-              <FlipText duration={3} delay={0} loop={true} style={{ color: '#ffffff' }}>
-                IAT Technologies
-              </FlipText>
+            <h1 style={{ margin: 0, fontSize: '1.65rem', fontWeight: 700, color: '#ffffff', letterSpacing: '-0.02em', whiteSpace: 'nowrap' }}>
+              IAT Technologies
             </h1>
-            <p style={{ margin: '6px 0 0', fontSize: '0.8125rem', color: 'rgba(122,251,255,0.50)' }}>
+            <p style={{ margin: '6px 0 0', fontSize: '0.8125rem', color: 'rgba(122,251,255,0.60)' }}>
               Sign in to your workspace
             </p>
           </div>
@@ -157,7 +162,15 @@ export function Login() {
 
                   {/* Password field + eye toggle */}
                   <div>
-                    <p className="cp-label">Password</p>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <p className="cp-label">Password</p>
+                      <Link
+                        to="/forgot-password"
+                        style={{ fontSize: '0.72rem', color: '#818cf8', textDecoration: 'none', marginBottom: '4px' }}
+                      >
+                        Forgot password?
+                      </Link>
+                    </div>
                     <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
                       <input
                         type={showPass ? 'text' : 'password'}

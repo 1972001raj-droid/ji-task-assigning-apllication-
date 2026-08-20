@@ -512,48 +512,6 @@ export function IssueDrawer({ issue: propIssue, onClose, onSelectIssue }: Props)
               </div>
             )}
 
-            {/* QA TESTING HANDOFF & DEFECT ESCALATION */}
-            {(issue.type === 'task' || issue.type === 'bug' || issue.type === 'story') && (
-              <div className="p-4 rounded-2xl border border-indigo-500/30 bg-indigo-500/5 space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-indigo-400 uppercase tracking-wider flex items-center gap-1.5">
-                    <CheckCircle className="w-4 h-4 text-indigo-400" /> QA Testing & Verification Gate
-                  </span>
-                  <span className="text-[11px] font-mono text-slate-400 bg-slate-800 px-2 py-0.5 rounded-md">
-                    Status: {issue.status}
-                  </span>
-                </div>
-
-                <div className="flex flex-wrap gap-2 pt-1">
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      await moveIssue(issue.id, 'done');
-                      await addComment(issue.id, 'QA Verification PASSED. Task marked Done.');
-                      toast.success('Task QA Verification PASSED');
-                    }}
-                    className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-sm transition-all flex items-center gap-1.5"
-                  >
-                    <Check className="w-3.5 h-3.5 stroke-[3]" /> Pass & Complete
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      const reason = prompt('Enter defect / failure details for the developer:');
-                      if (reason) {
-                        await moveIssue(issue.id, 'in-progress');
-                        await addComment(issue.id, `QA Verification FAILED: ${reason}`);
-                        toast.error('Task QA Verification FAILED - Returned to Developer');
-                      }
-                    }}
-                    className="px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold shadow-sm transition-all flex items-center gap-1.5"
-                  >
-                    <X className="w-3.5 h-3.5 stroke-[3]" /> Fail & Report Defect
-                  </button>
-                </div>
-              </div>
-            )}
 
             {/* Editable Description */}
             <div className="pt-2">
@@ -680,27 +638,35 @@ export function IssueDrawer({ issue: propIssue, onClose, onSelectIssue }: Props)
               </select>
             </div>
 
-            {/* Assignee (Developer / Tester only for Tasks and Subtasks) */}
-            <div>
-              <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
-                Assignee
-              </label>
-              <select
-                value={issue.assigneeId || ''}
-                onChange={e => updateIssue(issue.id, { assigneeId: e.target.value || undefined })}
-                className="w-full h-9 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 text-xs font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 cursor-pointer"
-              >
-                <option value="">Unassigned</option>
-                {(((assignableUsers && assignableUsers.length > 0) ? assignableUsers : (users || []).filter(u => !u.isSuperuser && u.role !== 'ADMIN'))).map(u => (
-                  <option key={u.id} value={u.id}>
-                    {u.name} ({getUserRoleLabel(u)})
-                  </option>
-                ))}
-              </select>
-            </div>
+            {/* Assignee: Only for Task, Bug, Subtask */}
+            {(issue.type === 'task' || issue.type === 'bug' || issue.type === 'subtask') && (
+              <div>
+                <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                  Assignee
+                </label>
+                <select
+                  value={issue.assigneeId || ''}
+                  onChange={e => updateIssue(issue.id, { assigneeId: e.target.value || undefined })}
+                  className="w-full h-9 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 text-xs font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 cursor-pointer"
+                >
+                  <option value="">Unassigned</option>
+                  {(((assignableUsers && assignableUsers.length > 0)
+                    ? assignableUsers
+                    : (users || []).filter(u => {
+                        const label = getUserRoleLabel(u).toLowerCase();
+                        return !u.isSuperuser && label !== 'admin' && label !== 'manager';
+                      })
+                  )).map(u => (
+                    <option key={u.id} value={u.id}>
+                      {u.name} ({getUserRoleLabel(u)})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
 
-            {/* Story Points (Hidden for Epic and Subtask) */}
-            {issue.type !== 'epic' && issue.type !== 'subtask' && (
+            {/* Story Points: Only for User Story, no max limit */}
+            {issue.type === 'story' && (
               <div>
                 <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
                   Story Points
@@ -708,7 +674,6 @@ export function IssueDrawer({ issue: propIssue, onClose, onSelectIssue }: Props)
                 <input
                   type="number"
                   min="0"
-                  max="99"
                   defaultValue={issue.storyPoints || ''}
                   onBlur={e => updateIssue(issue.id, { storyPoints: e.target.value ? parseInt(e.target.value, 10) : undefined })}
                   className="w-full h-9 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 text-xs font-semibold text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/40"

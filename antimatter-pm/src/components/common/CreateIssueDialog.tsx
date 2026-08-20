@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Layers, BookOpen, CheckSquare } from 'lucide-react';
+import { X, Layers, BookOpen, CheckSquare, Bug } from 'lucide-react';
 import { useStore } from '../../store';
 import type { IssueType, Status, Priority } from '../../types';
 import { toast } from 'sonner';
@@ -90,8 +90,13 @@ export function CreateIssueDialog({ open, onClose, defaults }: Props) {
       return;
     }
 
+    if ((type === 'task' || type === 'bug') && !selectedEpicId) {
+      toast.error(`${type === 'bug' ? 'Bug' : 'Task'} must belong to a Parent Epic`);
+      return;
+    }
+
     if ((type === 'task' || type === 'bug') && !selectedStoryId) {
-      toast.error('Task must belong to a Parent User Story');
+      toast.error(`${type === 'bug' ? 'Bug' : 'Task'} must belong to a Parent User Story`);
       return;
     }
 
@@ -114,7 +119,7 @@ export function CreateIssueDialog({ open, onClose, defaults }: Props) {
         assigneeId: assigneeId || undefined,
         epicId: selectedEpicId || undefined,
         parentId: finalParentId,
-        storyPoints: (type === 'story' || type === 'task') && storyPoints ? parseInt(storyPoints, 10) : undefined,
+        storyPoints: type === 'story' && storyPoints ? parseInt(storyPoints, 10) : undefined,
         sprintId: sprintId || undefined,
       });
 
@@ -186,11 +191,12 @@ export function CreateIssueDialog({ open, onClose, defaults }: Props) {
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
                 Issue Type
               </label>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-4 gap-3">
                 {[
                   { id: 'epic', label: 'Epic', icon: Layers, color: 'text-purple-400 bg-purple-500/10 border-purple-500/30' },
                   { id: 'story', label: 'User Story', icon: BookOpen, color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30' },
                   { id: 'task', label: 'Task', icon: CheckSquare, color: 'text-blue-400 bg-blue-500/10 border-blue-500/30' },
+                  { id: 'bug', label: 'Bug', icon: Bug, color: 'text-rose-400 bg-rose-500/10 border-rose-500/30' },
                 ].map((t) => {
                   const Icon = t.icon;
                   const selected = type === t.id;
@@ -237,8 +243,33 @@ export function CreateIssueDialog({ open, onClose, defaults }: Props) {
               </div>
             )}
 
-            {/* 2. Parent User Story Selector (Required for Task) */}
-            {type === 'task' && (
+            {/* 2. Parent Epic Selector (Required for Task/Bug — before user story) */}
+            {(type === 'task' || type === 'bug') && (
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                  Parent Epic <span className="text-rose-500">*</span>
+                </label>
+                <select
+                  value={selectedEpicId}
+                  onChange={(e) => {
+                    setSelectedEpicId(e.target.value);
+                    setSelectedStoryId(''); // reset story when epic changes
+                  }}
+                  className="w-full h-10 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
+                  required
+                >
+                  <option value="">Select Parent Epic...</option>
+                  {epics.map((epic) => (
+                    <option key={epic.id} value={epic.id}>
+                      {epic.key && !isUuidOrHash(epic.key) ? `${epic.key}: ` : ''}{epic.title}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* 3. Parent User Story Selector (Required for Task/Bug) */}
+            {(type === 'task' || type === 'bug') && (
               <div>
                 <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                   Parent User Story <span className="text-rose-500">*</span>
@@ -333,35 +364,44 @@ export function CreateIssueDialog({ open, onClose, defaults }: Props) {
               </div>
             </div>
 
-            {/* Grid 2: Assignee, Story Points (Story Points hidden for Epic) */}
-            <div className={`grid ${type === 'epic' ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2'} gap-3`}>
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                  Assignee (Developer / Tester)
-                </label>
-                <select
-                  value={assigneeId}
-                  onChange={(e) => setAssigneeId(e.target.value)}
-                  className="w-full h-10 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
-                >
-                  <option value="">Unassigned</option>
-                  {(((assignableUsers && assignableUsers.length > 0) ? assignableUsers : (users || []).filter(u => !u.isSuperuser && u.role !== 'ADMIN'))).map((u) => (
-                    <option key={u.id} value={u.id}>
-                      {u.name} ({getUserRoleLabel(u)})
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {type !== 'epic' && (
-                <div>
+            {/* Grid 2: Assignee (only for Task/Bug) + Story Points (only for User Story) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {/* Assignee: only for Task / Bug */}
+              {(type === 'task' || type === 'bug') && (
+                <div className="sm:col-span-2">
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                    Story Points / Estimate
+                    Assignee (Developer / Tester)
+                  </label>
+                  <select
+                    value={assigneeId}
+                    onChange={(e) => setAssigneeId(e.target.value)}
+                    className="w-full h-10 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
+                  >
+                    <option value="">Unassigned</option>
+                    {(((assignableUsers && assignableUsers.length > 0)
+                      ? assignableUsers
+                      : (users || []).filter(u => {
+                          const label = getUserRoleLabel(u).toLowerCase();
+                          return !u.isSuperuser && label !== 'admin' && label !== 'manager';
+                        })
+                    )).map((u) => (
+                      <option key={u.id} value={u.id}>
+                        {u.name} ({getUserRoleLabel(u)})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {/* Story Points: only for User Story, no max limit */}
+              {type === 'story' && (
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                    Story Points
                   </label>
                   <input
                     type="number"
                     min="0"
-                    max="99"
                     placeholder="e.g. 5"
                     value={storyPoints}
                     onChange={(e) => setStoryPoints(e.target.value)}

@@ -115,7 +115,19 @@ async def update_issue(
         await issue_service.validate_estimate(issue.project_id, data.estimate)
         issue.estimate = data.estimate
     if data.assignee_id is not None:
+        old_assignee_id = issue.assignee_id
         issue.assignee_id = data.assignee_id
+        # BRD §7: notify new assignee if they changed and it's not self-assignment
+        if data.assignee_id != old_assignee_id and str(data.assignee_id) != str(user.id):
+            from app.services.notification_service import NotificationService
+            notif_svc = NotificationService(session)
+            await notif_svc.dispatch(
+                user_id=data.assignee_id,
+                event_type="ISSUE_ASSIGNED",
+                title="You have been assigned a task",
+                message=f'You were assigned to: "{issue.title}"',
+                payload={"issue_id": str(issue.id), "issue_type": str(issue.issue_type.value)}
+            )
     if data.position is not None:
         issue.position = data.position
 

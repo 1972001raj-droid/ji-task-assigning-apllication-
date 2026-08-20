@@ -1,5 +1,6 @@
 from app.db.base import Base
-from app.db.models.user import User
+from app.db.models.user import User, UserStatus
+from app.db.models.token import AccountToken, TokenType
 from app.db.models.session import AuthSession
 from app.db.models.organization import Organization, OrganizationMembership
 from app.db.models.project import Project, ProjectMembership, ProjectEstimationSettings, EstimationScheme

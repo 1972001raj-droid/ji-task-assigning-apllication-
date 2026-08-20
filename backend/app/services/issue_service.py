@@ -16,6 +16,7 @@ from app.repositories.activity_repository import ActivityRepository
 from app.repositories.audit_repository import AuditRepository
 from app.repositories.outbox_repository import OutboxRepository
 from app.schemas.issue import IssueCreate, IssueUpdate, AcceptanceCriteriaCreate, AcceptanceCriteriaUpdate
+from app.services.notification_service import NotificationService
 
 
 class IssueService:
@@ -26,6 +27,7 @@ class IssueService:
         self.activity_repo = ActivityRepository(session)
         self.audit_repo = AuditRepository(session)
         self.outbox_repo = OutboxRepository(session)
+        self.notification_service = NotificationService(session)
 
     async def validate_hierarchy(self, issue_type: IssueType, parent_issue_id: Optional[uuid.UUID], project_id: uuid.UUID) -> Optional[Issue]:
         if parent_issue_id is None:
@@ -73,8 +75,9 @@ class IssueService:
     async def create_issue(self, data: IssueCreate, reporter_id: uuid.UUID) -> Issue:
         parent = await self.validate_hierarchy(data.issue_type, data.parent_issue_id, data.project_id)
         
-        # Epics and Subtasks do not have estimates / story points
-        if data.issue_type in (IssueType.EPIC, IssueType.SUBTASK):
+        # Epic, Task, Bug, and Subtask do not have story points / estimates
+        # User Story is the primary type for Story Points (BRD §5)
+        if data.issue_type in (IssueType.EPIC, IssueType.TASK, IssueType.BUG, IssueType.SUBTASK):
             data.estimate = None
         else:
             await self.validate_estimate(data.project_id, data.estimate)

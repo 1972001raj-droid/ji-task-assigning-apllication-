@@ -444,6 +444,18 @@ export function SprintsPage() {
                   {formatDate(sprint.startDate)} – {formatDate(sprint.endDate)}
                 </div>
 
+                {sprint.dayCounterText && (
+                  <div className={cn(
+                    "text-[10px] font-bold mt-1.5",
+                    sprint.isOverdue ? "text-rose-500" :
+                    sprint.status === 'completed' ? "text-emerald-500" :
+                    sprint.status === 'active' ? "text-indigo-500" :
+                    "text-slate-400"
+                  )}>
+                    {sprint.dayCounterText}
+                  </div>
+                )}
+
                 <div className="text-xs text-slate-500 dark:text-slate-455 mt-2 font-medium">
                   {sprintCount} issue{sprintCount !== 1 ? 's' : ''}
                 </div>
@@ -495,6 +507,22 @@ export function SprintsPage() {
                       <CheckCircle2 className="w-4 h-4 text-slate-400" />
                       <span>{doneIssuesCount}/{totalIssuesCount} done</span>
                     </div>
+                    {/* Sprint Day Counter Badge (BRD §9) */}
+                    {selectedSprint.dayCounterText && (
+                      <div className={cn(
+                        "flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold border",
+                        selectedSprint.isOverdue
+                          ? "bg-rose-500/10 text-rose-500 border-rose-500/25"
+                          : selectedSprint.status === 'completed'
+                          ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/25"
+                          : selectedSprint.status === 'active'
+                          ? "bg-indigo-500/10 text-indigo-500 border-indigo-500/25"
+                          : "bg-slate-500/10 text-slate-500 border-slate-500/25"
+                      )}>
+                        <AlertCircle className="w-3 h-3" />
+                        {selectedSprint.dayCounterText}
+                      </div>
+                    )}
                   </div>
                 </div>
 

@@ -8,7 +8,7 @@ import { NotificationPanel } from '../common/NotificationPanel';
 import { CommandPalette } from '../common/CommandPalette';
 import { ConfirmDialog } from '../common/ConfirmDialog';
 import { canDeleteProject } from '../../lib/permissions';
-import { cn } from '../../lib/utils';
+import { cn, getUserRoleLabel } from '../../lib/utils';
 
 export function TopHeader() {
   const {
@@ -38,6 +38,8 @@ export function TopHeader() {
   const [projectDropdownOpen, setProjectDropdownOpen] = useState(false);
   const [projectToDelete, setProjectToDelete] = useState<any>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const notifRef = useRef<HTMLDivElement>(null);
   const projectDropdownRef = useRef<HTMLDivElement>(null);
@@ -206,18 +208,31 @@ export function TopHeader() {
             </AnimatePresence>
           </div>
 
-          {/* Avatar & Logout Button */}
+          {/* Avatar, Name, Role Badge & Logout Button */}
           <div className="flex items-center gap-2 sm:gap-3 ml-1 pl-2 sm:pl-3 border-l border-slate-800 shrink-0">
-            {currentUser && <UserAvatar user={currentUser} size="sm" />}
+            {currentUser && (
+              <div className="flex items-center gap-2">
+                <UserAvatar user={currentUser} size="sm" />
+                <div className="hidden sm:flex flex-col items-start leading-tight">
+                  <span className="text-xs font-semibold text-slate-200 truncate max-w-[180px]">
+                    {currentUser.name}
+                  </span>
+                  <div className="flex items-center gap-1">
+                    {isAdmin ? (
+                      <span className="text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                        Administrator
+                      </span>
+                    ) : (
+                      <span className="text-[10px] text-slate-400 font-medium">
+                        {getUserRoleLabel(currentUser)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
             <button
-              onClick={async () => {
-                try {
-                  await import('../../lib/api').then(m => m.api.post('/auth/logout'));
-                  window.location.href = '/login';
-                } catch (e) {
-                  window.location.href = '/login';
-                }
-              }}
+              onClick={() => setLogoutConfirmOpen(true)}
               className="w-8 h-8 sm:w-auto flex items-center justify-center gap-1.5 text-xs font-medium text-slate-400 hover:text-indigo-400 hover:bg-slate-800 sm:hover:bg-transparent rounded-xl transition-colors shrink-0"
               title="Logout"
             >
@@ -256,6 +271,29 @@ export function TopHeader() {
           setDeleteConfirmOpen(false);
           setProjectToDelete(null);
         }}
+        danger
+      />
+
+      <ConfirmDialog
+        open={logoutConfirmOpen}
+        title="Log Out of Workspace"
+        message="Are you sure you want to log out? You will need to enter your password to access your workspace again."
+        confirmLabel={isLoggingOut ? "Logging out..." : "Log Out"}
+        onConfirm={async () => {
+          setIsLoggingOut(true);
+          try {
+            const { api } = await import('../../lib/api');
+            await api.post('/auth/logout');
+          } catch (e) {
+            // ignore
+          } finally {
+            setIsLoggingOut(false);
+            setLogoutConfirmOpen(false);
+            useStore.setState({ currentUserId: null as any, users: [] });
+            window.location.href = '/login';
+          }
+        }}
+        onCancel={() => setLogoutConfirmOpen(false)}
         danger
       />
     </>

@@ -16,13 +16,28 @@ from app.core.permissions import SystemRole
 
 
 async def main() -> None:
-    username = os.getenv("BOOTSTRAP_ADMIN_USERNAME", "admin").strip()
-    email = os.getenv("BOOTSTRAP_ADMIN_EMAIL", "admin@example.com").strip().lower()
-    password = os.getenv("BOOTSTRAP_ADMIN_PASSWORD", "AdminPassword123!")
-    full_name = os.getenv("BOOTSTRAP_ADMIN_FULL_NAME", "System Administrator").strip()
+    username = os.getenv("BOOTSTRAP_ADMIN_USERNAME", "").strip()
+    email = os.getenv("BOOTSTRAP_ADMIN_EMAIL", "").strip().lower()
+    password = os.getenv("BOOTSTRAP_ADMIN_PASSWORD", "")
+    full_name = os.getenv("BOOTSTRAP_ADMIN_FULL_NAME", "").strip()
 
+    missing = []
+    if not username:
+        missing.append("BOOTSTRAP_ADMIN_USERNAME")
+    if not email:
+        missing.append("BOOTSTRAP_ADMIN_EMAIL")
     if not password:
-        print("ERROR: BOOTSTRAP_ADMIN_PASSWORD must not be empty.")
+        missing.append("BOOTSTRAP_ADMIN_PASSWORD")
+    if not full_name:
+        missing.append("BOOTSTRAP_ADMIN_FULL_NAME")
+
+    if missing:
+        print(f"ERROR: The following required environment variables are not set: {', '.join(missing)}")
+        print("Set them in your .env file or export them before running this command.")
+        sys.exit(1)
+
+    if len(password) < 12:
+        print("ERROR: BOOTSTRAP_ADMIN_PASSWORD must be at least 12 characters.")
         sys.exit(1)
 
     async with AsyncSessionLocal() as session:

@@ -5,11 +5,12 @@ __pycache__/
 *.pyd
 *.pyc
 *.pdb
-*.pyd
-*.pyo
 *.coverage
 .coverage.*
 .pytest_cache/
+*.egg-info/
+build/
+dist/
 celerybeat-schedule
 env/
 venv/
