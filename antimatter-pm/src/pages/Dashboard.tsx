@@ -1,16 +1,14 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-  CheckCircle2, AlertTriangle, Layers, TrendingUp, ListTodo,
-  ArrowRight, Clock,
+  CheckCircle2, AlertTriangle, Layers, TrendingUp, CheckSquare,
+  CircleDot, ArrowRight, Clock, FolderPlus,
 } from 'lucide-react';
 import { useStore } from '../store';
 import { MetricCard } from '../components/common/MetricCard';
 import { UserAvatar } from '../components/common/UserAvatar';
 import { statusLabel, formatRelativeDate } from '../lib/utils';
 import type { Status } from '../types';
-
-import { FolderPlus } from 'lucide-react';
 import { useState } from 'react';
 import { CreateProjectDialog } from '../components/common/CreateProjectDialog';
 
@@ -39,6 +37,7 @@ export function Dashboard() {
   const doneInSprint = sprintIssues.filter(i => i.status === 'done').length;
   const progress = sprintIssues.length ? Math.round((doneInSprint / sprintIssues.length) * 100) : 0;
   const totalIssues = issues.length;
+  const totalTasks = issues.filter(i => i.type === 'task').length;
   const completedIssues = issues.filter(i => i.status === 'done').length;
   const blockedIssues = issues.filter(i => i.priority === 'urgent').length;
   const activeEpics = epics.filter(e => e.status === 'in-progress').length;
@@ -94,12 +93,18 @@ export function Dashboard() {
 
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <MetricCard
+          label="Total issues"
+          value={totalIssues}
+          icon={<CircleDot className="w-4 h-4 text-indigo-600" />}
+          iconBg="bg-indigo-50 dark:bg-indigo-950/60"
+        />
         <MetricCard
           label="Total tasks"
-          value={totalIssues}
-          icon={<ListTodo className="w-4 h-4 text-indigo-600" />}
-          iconBg="bg-indigo-50 dark:bg-indigo-950/60"
+          value={totalTasks}
+          icon={<CheckSquare className="w-4 h-4 text-blue-600" />}
+          iconBg="bg-blue-50 dark:bg-blue-950/60"
         />
         <MetricCard
           label="Completed"

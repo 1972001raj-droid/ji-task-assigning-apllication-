@@ -5,6 +5,7 @@ import { Toaster } from 'sonner';
 import './index.css';
 import App from './App';
 import { useStore } from './store';
+import { LogoutOnBackGuard } from './components/auth/LogoutOnBackGuard';
 
 function Root() {
   const theme = useStore(s => s.theme);
@@ -14,6 +15,7 @@ function Root() {
   return (
     <>
       <App />
+      <LogoutOnBackGuard />
       <Toaster
         position="bottom-right"
         toastOptions={{

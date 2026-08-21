@@ -197,22 +197,22 @@ export function IssueDrawer({ issue: propIssue, onClose, onSelectIssue }: Props)
 
   return (
     <>
-      {/* Dimmed Backdrop */}
+      {/* Dimmed Responsive Backdrop */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-40"
+        className="fixed inset-0 bg-slate-950/50 backdrop-blur-none sm:backdrop-blur-sm md:backdrop-blur-md z-40"
         onClick={onClose}
       />
 
-      {/* Right Drawer Sheet (~820px wide desktop, full mobile) */}
+      {/* Right Drawer Sheet (responsive width: full on mobile, flexible on tablet/desktop) */}
       <motion.div
         initial={{ x: '100%' }}
         animate={{ x: 0 }}
         exit={{ x: '100%' }}
         transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-        className="fixed right-0 top-0 h-full w-full max-w-[820px] bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-l border-slate-200 dark:border-slate-800 z-50 flex flex-col shadow-2xl overflow-hidden text-slate-800 dark:text-slate-100"
+        className="fixed right-0 top-0 h-full w-full sm:w-[90vw] md:w-[750px] lg:w-[820px] max-w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-l border-slate-200 dark:border-slate-800 z-50 flex flex-col shadow-2xl overflow-hidden text-slate-800 dark:text-slate-100"
       >
         {/* Fixed Header Bar */}
         <div className="flex items-center justify-between px-6 py-3.5 border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/80 shrink-0">

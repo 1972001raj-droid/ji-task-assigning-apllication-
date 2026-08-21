@@ -152,7 +152,7 @@ export function CreateIssueDialog({ open, onClose, defaults }: Props) {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="fixed inset-0 bg-slate-950/70 backdrop-blur-md"
+          className="fixed inset-0 bg-slate-950/70 backdrop-blur-none sm:backdrop-blur-sm md:backdrop-blur-md"
         />
 
         {/* Modal Container */}

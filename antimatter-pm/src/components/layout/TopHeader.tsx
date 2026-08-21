@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Plus, Moon, Sun, Bell, Menu, LogOut, Search, ChevronDown, Trash2 } from 'lucide-react';
 import { AnimatePresence } from 'framer-motion';
 import { useStore } from '../../store';
@@ -7,10 +8,12 @@ import { CreateIssueDialog } from '../common/CreateIssueDialog';
 import { NotificationPanel } from '../common/NotificationPanel';
 import { CommandPalette } from '../common/CommandPalette';
 import { ConfirmDialog } from '../common/ConfirmDialog';
+import { logout } from '../../lib/logout';
 import { canDeleteProject } from '../../lib/permissions';
 import { cn, getUserRoleLabel } from '../../lib/utils';
 
 export function TopHeader() {
+  const navigate = useNavigate();
   const {
     currentUserId,
     users,
@@ -277,20 +280,16 @@ export function TopHeader() {
       <ConfirmDialog
         open={logoutConfirmOpen}
         title="Log Out of Workspace"
-        message="Are you sure you want to log out? You will need to enter your password to access your workspace again."
+        message="Are you sure you want to log out?"
         confirmLabel={isLoggingOut ? "Logging out..." : "Log Out"}
         onConfirm={async () => {
           setIsLoggingOut(true);
           try {
-            const { api } = await import('../../lib/api');
-            await api.post('/auth/logout');
-          } catch (e) {
-            // ignore
+            await logout();
+            navigate('/login', { replace: true });
           } finally {
             setIsLoggingOut(false);
             setLogoutConfirmOpen(false);
-            useStore.setState({ currentUserId: null as any, users: [] });
-            window.location.href = '/login';
           }
         }}
         onCancel={() => setLogoutConfirmOpen(false)}

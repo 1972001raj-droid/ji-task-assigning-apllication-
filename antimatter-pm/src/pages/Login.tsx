@@ -15,7 +15,7 @@ export function Login() {
   const [showPass, setShowPass] = useState(false);
   const navigate = useNavigate();
 
-  // If already logged in, prevent landing on /login and redirect to /dashboard
+  // If already logged in when arriving on /login directly, redirect to /dashboard
   useEffect(() => {
     if (currentUserId) {
       navigate('/dashboard', { replace: true });
@@ -35,7 +35,8 @@ export function Login() {
       }
       await useStore.getState().fetchInitialData();
       toast.success('Logged in successfully');
-      navigate('/dashboard', { replace: true });
+      // Push /dashboard so /login is preserved in browser history
+      navigate('/dashboard');
     } catch (error: any) {
       toast.error(error.response?.data?.error?.message || 'Login failed');
     } finally {
